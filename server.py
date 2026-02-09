@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
+app.secret_key = 'super_secret_key'
 
 @app.route("/")
 def home():
@@ -17,7 +18,6 @@ def login_page():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        print(email,password)
         
         # TODO: כאן נוסיף את הקוד שמתחבר לשרת ה-Database
         # 1. יצירת Socket
@@ -38,8 +38,7 @@ def register_page():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
-        print((username,email,password))
-        
+
         # TODO: כאן נוסיף את הקוד שמתחבר לשרת ה-Database
         # 1. יצירת Socket
         # 2. שליחת הודעה: "REGISTER|{username}|{email}|{password}"
@@ -51,4 +50,4 @@ def register_page():
     return render_template("register_page.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, ssl_context=("cert.pem", "key.pem"))
