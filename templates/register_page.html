@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הרשמה - Aviation Wiki</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
+    
+    <style>
+        /* ... אותו CSS כמו ב-login.html ... */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body {
+            height: 100vh;
+            width: 100%;
+            background-image: url("{{ url_for('static', filename='images/home_background.avif') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-card h2 { margin-bottom: 25px; color: #333; font-size: 2rem; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; color: #666; font-weight: 600; }
+        .form-group input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; }
+        .form-group input:focus { border-color: #89c4f4; outline: none; }
+        .submit-btn {
+            width: 100%; padding: 12px;
+            background: linear-gradient(180deg, #ffffff 20%, #89c4f4 100%);
+            border: none; border-radius: 15px;
+            color: #222; font-weight: 700; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 76, 175, 0.2); margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        .submit-btn:hover { transform: translateY(-3px); }
+        .links { margin-top: 20px; font-size: 0.9rem; }
+        .links a { color: #0056b3; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <h2>Create an Account</h2>
+        <form action="/register" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter Username">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="Email" required placeholder="Enter Email Address">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="Password" required placeholder="Choose a Password">
+            </div>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+
+        <div class="links">
+            Already Have an Account? <a href="/login">Login</a>
+            <br><br>
+            <a href="/">Go Back Home</a>
+        </div>
+    </div>
+
+</body>
+</html>
