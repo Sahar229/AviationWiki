@@ -1,33 +1,45 @@
 import socket
 import threading
 import sqlite3
+import hashlib
 import protocol  # האימפורט של הפרוטוקול שיצרנו קודם
 
-# הגדרות השרת
+# הגדרות השרת   
 SERVER_IP = '0.0.0.0'  # מאזין לכל הממשקים
 SERVER_PORT = 5002
 DB_NAME = "users.db"
 
+def hash_password(password):
+    """ לוקח סיסמה רגילה ומחזיר גיבוב (Hash) מאובטח מסוג SHA-256 """
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
 def create_database():
-    #TODO בניית מאגר נתונים 
-    pass
+    """ יצירת טבלת המשתמשים אם היא לא קיימת """
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    print("[*] Database ready.")
 
 def handle_client(client_socket, client_address):
-    """
-    הפונקציה שרצה בתוך Thread נפרד לכל חיבור שנכנס.
-    """
     print(f"[+] New connection from {client_address}")
     
-    conn = sqlite3.connect(DB_NAME) # חיבור ל-DB בתוך ה-Thread
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     try:
         while True:
-            # 1. קבלת הודעה באמצעות הפרוטוקול שלנו
             command, params = protocol.receive_message(client_socket)
-            
             if not command:
-                break # אם הצד השני התנתק
+                break
             
             print(f"Received command: {command} from {client_address}")
             response_data = {}
@@ -36,37 +48,49 @@ def handle_client(client_socket, client_address):
             if command == "LOGIN_REQUEST":
                 email = params.get("email")
                 password = params.get("password")
-                print(email,password)
                 
-                # # שאילתה מאובטחת נגד SQL Injection
-                # cursor.execute("SELECT id, username, score FROM users WHERE email=? AND password=?", (email, password))
-                # user = cursor.fetchone()
+                hashed_pw = hash_password(password)
                 
-                # if user:
-                #     response_data = {"status": "ok", "user_id": user[0], "username": user[1], "score": user[2]}
-                # else:
-                #     response_data = {"status": "fail", "error": "Invalid email or password"}
-                
-                # שליחת התשובה חזרה ל-Flask
-                protocol.send_message(client_socket, "LOGIN_RESPONSE", {"status": "ok"})
 
-    #         # --- לוגיקת הרשמה ---
-    #         elif command == "REGISTER_REQUEST":
-    #             username = params.get("username")
-    #             email = params.get("email")
-    #             password = params.get("password")
+                cursor.execute("SELECT id, username FROM users WHERE email=? AND password=?", (email, hashed_pw))
+                user = cursor.fetchone()
                 
-    #             try:
-    #                 cursor.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
-    #                                (username, email, password))
-    #                 conn.commit()
-    #                 response_data = {"status": "ok"}
-    #                 print(f"Created new user: {username}")
-    #             except sqlite3.IntegrityError:
-    #                 # המייל כבר קיים במערכת
-    #                 response_data = {"status": "fail", "error": "Email already exists"}
+                if user:
+                    response_data = {"status": "ok", "user_id": user[0], "username": user[1]}
+                    print(f"User {email} logged in successfully.")
+                else:
+                    response_data = {"status": "fail", "error": "Incorrect Email or Password"}
                 
-    #             protocol.send_message(client_socket, "REGISTER_RESPONSE", response_data)
+                protocol.send_message(client_socket, "LOGIN_RESPONSE", response_data)
+
+            # --- לוגיקת הרשמה ---
+            elif command == "REGISTER_REQUEST":
+                username = params.get("username")
+                email = params.get("email")
+                password = params.get("password")
+                
+                hashed_pw = hash_password(password)
+                
+                try:
+                    # שומרים את hashed_pw במקום את הסיסמה הרגילה
+                    cursor.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
+                                   (username, email, hashed_pw))
+                    conn.commit()
+                    response_data = {"status": "ok"}
+                    print(f"Created new user: {username}")
+                except sqlite3.IntegrityError as e:
+                    # הופכים את השגיאה לטקסט כדי שנוכל לחפש בתוכה מילים
+                    error_message = str(e).lower()
+                    
+                    if "username" in error_message:
+                        response_data = {"status": "fail", "error": "Username Already Exists"}
+                    elif "email" in error_message:
+                        response_data = {"status": "fail", "error": "Email Already Exists"}
+                    else:
+                        # מקרה גיבוי למקרה שמשהו אחר השתבש
+                        response_data = {"status": "fail", "error": "Username or Email Already Exists"}
+                
+                protocol.send_message(client_socket, "REGISTER_RESPONSE", response_data)
 
     except Exception as e:
         print(f"Error handling client: {e}")
