@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviation Wiki</title>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
     <style>
@@ -285,8 +285,15 @@
                 <div id="search-results" class="search-dropdown"></div>
             </div>
 
-            <div class="auth-buttons">
-                <a href="{{ url_for('login_page') }}" class="login-btn">Login / Register</a>
+            <div class="auth-buttons" style="display: flex; align-items: center; gap: 15px;">
+                {% if 'username' in session %}
+                    <span style="color: #0f4c81; font-weight: 700; font-size: 1.1rem;">
+                        Hello, {{ session['username'] }}
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="nav-btn" style="border-color: #d9534f; color: #d9534f; padding: 6px 15px;">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login_page') }}" class="login-btn">Login / Register</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -346,7 +353,7 @@
             <img src="https://an.aero/wp-content/uploads/2016/03/737-boeing-13-jpg.webp" alt="Boeing 737-800">
         </div>
         <div class="thumbnail" onclick="changePlane(5)">
-            <img src="https://airmodels.net/c/61-category_default/airbus-a330.jpg" alt="Airbus A330-900neo">
+            <img src="https://ih1.redbubble.net/image.3681983976.1127/bg,f8f8f8-flat,750x,075,f-pad,750x1000,f8f8f8.webp" alt="Airbus A330-900neo">
         </div>
         <div class="thumbnail" onclick="changePlane(6)">
             <img src="https://cdn.shopify.com/s/files/1/1217/7182/collections/Airbus_A400M_995a24c0-2d72-4c7c-a8f9-46a04e797143.jpg?v=1549074320" alt="Airbus A400M">

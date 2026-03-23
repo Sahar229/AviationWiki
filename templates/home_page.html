@@ -58,6 +58,11 @@
             font-weight: 600;
         }
 
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
         /* 4. MAIN CONTENT (Centering the buttons) */
         .container {
             display: flex;
@@ -101,7 +106,16 @@
 
     <nav>
         <div class="logo">Aviation Wiki</div>
-        <a href="{{ url_for('login_page') }}" class="login-btn">Login / Register</a>
+        <div class="auth-buttons" style="display: flex; align-items: center; gap: 15px;">
+            {% if 'username' in session %}
+                <span style="color: #0f4c81; font-weight: 700; font-size: 1.1rem;">
+                    Hello, {{ session['username'] }}
+                </span>
+                <a href="{{ url_for('logout') }}" class="nav-btn" style="border-color: #d9534f; color: #d9534f; padding: 6px 15px;">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login_page') }}" class="login-btn">Login / Register</a>
+            {% endif %}
+        </div>
     </nav>
 
     <div class="container">

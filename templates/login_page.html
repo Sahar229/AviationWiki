@@ -119,6 +119,25 @@
 
             <button type="submit" class="submit-btn">Submit</button>
         </form>
+        
+        {% if error %}
+            <div style="color: #d9534f; background-color: #f2dede; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;">
+                {{ error }}
+            </div>
+        {% endif %}
+        
+        {% if success %}
+            <div style="color: #3c763d; background-color: #dff0d8; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;">
+                {{ success }}
+            </div>
+            <script>
+                setTimeout(function() {
+                    window.location.href = "{{ redirect_url }}";
+                }, 1500); // 1500 מילישניות = שניה וחצי
+            </script>
+        {% endif %}
+
+        <form action="/login" method="POST">
 
         <div class="links">
             Don't Have an Account Yet? <a href="{{ url_for('register_page') }}">Register Here</a>
@@ -128,5 +147,4 @@
     </div>
 
 </body>
-
 </html>
