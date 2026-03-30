@@ -17,7 +17,7 @@ class DatabaseServer:
         """
         פונקציה המעבדת בקשת התחברות.
         שולפת את הנתונים, מבצעת שאילתה מול בסיס הנתונים, ושולחת תשובה חזרה ללקוח.
-        מחזירה: כלום. הפעולה שולחת את הנתונים ישירות לסוקט.
+        מחזירה: כלום. הפעולה שולחת את תוצאת הפעולה ישירות לסוקט.
         """
         response_data = {}
         try:
@@ -38,7 +38,7 @@ class DatabaseServer:
         """
         פונקציה המעבדת בקשת הרשמה.
         מפעילה את מתודת הרישום בבסיס הנתונים ומחזירה את התוצאה ללקוח.
-        מחזירה: כלום. הפעולה שולחת את הנתונים ישירות לסוקט.
+        מחזירה: כלום. הפעולה שולחת את תוצאת הפעולה ישירות לסוקט.
         """
         response_data = {}
         try:
@@ -49,6 +49,54 @@ class DatabaseServer:
             response_data = self.db.register(username, email, password)
         finally:
           ProtocolTools.send_message(client_socket, "REGISTER_RESPONSE", response_data)
+
+    def process_update_stats(self, client_socket: socket.socket, params) -> None:
+        """
+        פונקציה המעבדת בקשה לעדכון סטטים.
+        מפעילה את מתודת עדכון הסטטים בבסיס הנתונים ומחזירה את התוצאה ללקוח.
+        מחזירה: כלום. הפעולה שולחת את תוצאת הפעולה ישירות לסוקט.
+        """
+        response_data = {}
+        try:
+            user_id = params.get("user_id")
+            won = params.get("won", False)
+            correct_count = params.get("correct_count",0)
+        
+            if user_id is None:
+                response_data = {"status": "fail", "error": "Missing user_id"}
+            else:
+                response_data = self.db.update_user_stats(user_id, won, correct_count)
+                
+        except Exception as e: # שיפור: תפיסת שגיאות ברמת השרת
+            print(f"Error in process_update_stats: {e}")
+            response_data = {"status": "fail", "error": "Internal server error"}
+        finally:
+            ProtocolTools.send_message(client_socket, "UPDATE_STATS_RESPONSE", response_data)
+
+
+    def process_get_stats(self, client_socket: socket.socket, params) -> None:
+        """
+        פונקציה המקבלת בקשה לקבלת סטטים של משתמש.
+        מקבלת מספר זיהוי של משתמש ומפעילה מתודת החזרת נתונים מבסיס הנתונים.
+        מחזירה: שולחת ישירות לסוקט את הסטטים של המשתמש
+        """
+        response_data = {}
+        try:
+            user_id = params.get("user_id")
+            if user_id is None:
+                response_data = {"status": "fail", "error": "Missing user_id"}
+            else:
+                stats = self.db.get_user_stats(user_id)
+                if stats:
+                    response_data = {"status": "ok", "stats": stats}
+                else:
+                    response_data = {"status": "fail", "error": "User not found"}
+                    
+        except Exception as e:
+            print(f"Error in process_get_stats: {e}")
+            response_data = {"status": "fail", "error": "Internal server error"}
+        finally:
+            ProtocolTools.send_message(client_socket, "GET_STATS_RESPONSE", response_data)
     
 
 
@@ -71,7 +119,13 @@ class DatabaseServer:
                     self.process_login(client_socket, params)
         
                 elif command == "REGISTER_REQUEST":
-                    self.process_register(client_socket, params)    
+                    self.process_register(client_socket, params) 
+
+                elif command == "UPDATE_STATS_REQUEST":
+                    self.process_update_stats(client_socket, params)
+                
+                elif command == "GET_STATS_REQUEST":
+                    self.process_get_stats(client_socket, params)
 
         except Exception as e:
             print(f"Error handling client: {e}")

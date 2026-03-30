@@ -19,7 +19,10 @@ class DatabaseManager:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT UNIQUE NOT NULL,
                     email TEXT UNIQUE NOT NULL,
-                    password TEXT NOT NULL
+                    password TEXT NOT NULL,
+                    games_played INTEGER DEFAULT 0,
+                    wins INTEGER DEFAULT 0,
+                    correct_answers INTEGER DEFAULT 0
                 )
             ''')
             conn.commit()
@@ -84,3 +87,59 @@ class DatabaseManager:
                 conn.close() # סגירה מבטיחה שה-DB לא יישאר נעול
                 
         return response_data
+    
+    def update_user_stats(self, user_id : int , won : bool , correct_count :int):
+        """
+        מעדכנת את הסטטיסטיקות של המשתמש בסיום משחק.
+        won: בוליאני (True אם ניצח, False אם לא)
+        correct_count: מספר התשובות הנכונות בחידון הספציפי הזה
+        """
+        with self.lock:
+            conn = sqlite3.connect(self.db_name) # פתיחה בתוך הפונקציה
+            cursor = conn.cursor()
+            try:
+                win_increment = 1 if won else 0
+                cursor.execute('''
+                    UPDATE users 
+                    SET wins = wins + ?, 
+                        games_played = games_played + 1, 
+                        correct_answers = correct_answers + ?
+                    WHERE id = ?
+                ''', (win_increment, correct_count, user_id))
+                conn.commit()
+                return {"status": "ok"}
+            except Exception as e:
+                print(f"Error updating stats: {e}")
+                return {"status": "fail", "error": str(e)}
+            finally:
+                conn.close()
+
+    def get_user_stats(self, user_id: int):
+        """
+        פונקציה המקבלת מספר זיהוי של משתמש מסוים
+        מחזירה מילון עם הנתונים או כלום אם המשתמש לא נמצא.
+        """
+        stats = None
+        with self.lock:
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("""
+                    SELECT wins, games_played, correct_answers 
+                    FROM users 
+                    WHERE id=?
+                """, (user_id,))
+                row = cursor.fetchone()
+                if row:
+                    stats = {
+                        "wins": row[0],
+                        "games_played": row[1],
+                        "correct_answers": row[2]
+                    }
+            except Exception as e:
+                print(f"Error fetching stats for user {user_id}: {e}")
+            finally:
+                conn.close()
+        return stats
+
+
