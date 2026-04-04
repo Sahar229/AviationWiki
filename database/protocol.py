@@ -1,5 +1,6 @@
 import socket
 import json
+from utils.logger import logger
 
 # גודל הכותרת המגדירה את אורך ההודעה
 class ProtocolTools:
@@ -23,16 +24,19 @@ class ProtocolTools:
             "params": params
         }
         
+        #הכנת גייסון
         message_str = json.dumps(message_dict)
         message_bytes = message_str.encode('utf-8')
         
+        #הכנת הדר
         header = str(len(message_bytes)).zfill(cls.HEADER_LENGTH).encode('utf-8')
         
+        #שליחה
         try:
             sock.sendall(header + message_bytes)
             return True
         except Exception as e:
-            print(f"Error sending message: {e}")
+            logger.error(f"Error sending message: {e}")
             return False
 
     @classmethod
@@ -43,7 +47,7 @@ class ProtocolTools:
         מחזירה טאפל של (פקודה, פרמטרים). במקרה של שגיאה או ניתוק, מחזירה כלום
         """
         try:
-            # 1. קריאת הכותרת (האורך)
+            # 1. קריאת ההדר
             header = b""
             while len(header) < cls.HEADER_LENGTH:
                 packet = sock.recv(cls.HEADER_LENGTH - len(header))
@@ -61,10 +65,10 @@ class ProtocolTools:
                     return None, None
                 data += packet
                 
-            # 3. המרה חזרה מ-JSON
+            # 3. המרה מגייסון
             message_dict = json.loads(data.decode('utf-8'))
             return message_dict["command"], message_dict["params"]
             
         except Exception as e:
-            # במקרה של ניתוק או שגיאה
+            logger.error(f"Error: {e}")
             return None, None

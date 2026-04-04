@@ -19,8 +19,8 @@ class GameRules:
     
     # זמנים (בשניות)
     QUESTION_TIMER = 15
-    ROUND_TRANSITION_DELAY = 4
-    GAME_START_DELAY = 3
+    ROUND_TRANSITION_DELAY = 2
+    GAME_START_DELAY = 2
     
     # ניקוד
     BASE_POINTS = 100

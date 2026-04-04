@@ -1,6 +1,7 @@
 import socket
 from database.protocol import *
 from config import DBConfig
+from utils.logger import logger
 
 class DatabaseClient:
     """
@@ -25,5 +26,5 @@ class DatabaseClient:
             sock.close()
             return response_data
         except Exception as e:
-            print(f"Database connection error: {e}")
+            logger.error(f"Database connection error: {e}")
             return None

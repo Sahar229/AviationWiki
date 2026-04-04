@@ -3,3 +3,6 @@
 
 # Databases
 users.db
+
+#logs
+*.log

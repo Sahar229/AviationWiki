@@ -1,5 +1,4 @@
-// static/js/room.js
-
+// אתחול חיבור הסוקט ושמירת אלמנטים מרכזיים מהתצוגה לשימוש מהיר בהמשך
 const socket = io();
 
 // Cache views
@@ -11,7 +10,7 @@ const finalView = document.getElementById('final-view');
 let currentTimer = null;
 let currentScoreMap = {};
 
-// Helper to switch views
+// פונקציית עזר המעלימה את כל המסכים ומציגה רק את המסך המבוקש בלבד
 function showView(viewElement) {
     waitingView.style.display = 'none';
     playingView.style.display = 'none';
@@ -20,11 +19,13 @@ function showView(viewElement) {
     if(viewElement) viewElement.style.display = 'block';
 }
 
+// בעת התחברות לשרת שליחת בקשה להצטרפות לחדר הספציפי
 socket.on('connect', () => {
     console.log('Connected to Room WebSocket!', MY_USERNAME);
     socket.emit('join_room_socket', { room_code: ROOM_CODE });
 });
 
+// קבלת רשימת השחקנים העדכנית והצגתה תוך סימון המארח
 socket.on('update_players', (data) => {
     const playersList = document.getElementById('players-list');
     if (playersList) {
@@ -38,7 +39,7 @@ socket.on('update_players', (data) => {
             playersList.appendChild(li);
         });
         
-        // Update live scoreboard structure initially
+        // עדכון ראשוני של מבנה טבלת הניקוד עבור כל השחקנים
         data.players.forEach(p => {
              if (!(p in currentScoreMap)) {
                  currentScoreMap[p] = 0;
@@ -47,7 +48,6 @@ socket.on('update_players', (data) => {
     }
 });
 
-// Start button click
 if (IS_HOST) {
     const startBtn = document.getElementById('start-btn');
     if (startBtn) {
@@ -61,9 +61,10 @@ if (IS_HOST) {
 // Game Events
 // =======================
 
-socket.on('game_started', () => {
-    console.log("Game started by host");
-});
+// עדכון ראשוני של מבנה טבלת הניקוד עבור כל השחקנים
+// socket.on('game_started', () => {
+//     console.log("Game started by host");
+// });
 
 socket.on('start_round', (data) => {
     showView(playingView);
@@ -125,6 +126,7 @@ socket.on('scoreboard_update', (data) => {
     renderScoreboard();
 });
 
+//  קבלת תוצאות הסיבוב מהשרת הצגת התשובה הנכונה ועדכון טבלת הניקוד
 socket.on('round_results', (data) => {
     if (currentTimer) clearInterval(currentTimer);
     showView(feedbackView);
@@ -133,8 +135,7 @@ socket.on('round_results', (data) => {
     
     const myResult = data.results[MY_USERNAME];
     const prevScore = currentScoreMap[MY_USERNAME] || 0; // Current total
-    // To know exactly how many points I just got, we look at the backend delta, or we can just say Correct/Wrong.
-    // The requirements say "הראשון שענה נכון מקבל 100 נקודות..." (First correct gets 100).
+
     
     document.getElementById('feedback-answer').innerText = `The correct answer was: ${data.correct_answer}`;
     
@@ -156,6 +157,7 @@ socket.on('round_results', (data) => {
     }
 });
 
+// סיום המשחק והצגת מסך התוצאות הסופיות עם דירוג השחקנים והדגשת המשתמש
 socket.on('game_over', (data) => {
     if (currentTimer) clearInterval(currentTimer);
     showView(finalView);
@@ -188,6 +190,7 @@ socket.on('game_over', (data) => {
     });
 });
 
+// בניית תצוגת טבלת הניקוד המעודכנת על המסך ומיון השחקנים לפי הניקוד שלהם
 function renderScoreboard() {
     const list = document.getElementById('live-scoreboard');
     const feedbackList = document.getElementById('feedback-scoreboard');

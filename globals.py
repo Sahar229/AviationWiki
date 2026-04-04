@@ -3,9 +3,12 @@ from flask_socketio import SocketIO
 from game.models import RoomManager
 from database.db_client import DatabaseClient
 from config import ServerConfig
-import os
 from config import DBConfig
+import os
+from utils.logger import logger
 
+
+#פתיחת הפלאסק
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__, 
@@ -17,3 +20,5 @@ socketio = SocketIO(app)
 # מנהל המשחק ושרת מסד הנתונים שחיים בזיכרון
 game_manager = RoomManager()
 db_req = DatabaseClient(DBConfig.HOST2,DBConfig.PORT)
+
+logger.info("created all of the global instances")

@@ -1,6 +1,7 @@
 import sqlite3
 import hashlib
 import threading
+from utils.logger import logger
 
 class DatabaseManager:
     """
@@ -11,6 +12,7 @@ class DatabaseManager:
         self._db_name = db_name
         self._lock = threading.Lock()
         
+        #יצירת מסד נתונים
         with self._lock:
             conn = sqlite3.connect(self._db_name)
             cursor = conn.cursor()
@@ -27,7 +29,7 @@ class DatabaseManager:
             ''')
             conn.commit()
             conn.close()
-        print("[*] Database ready.")
+        logger.info("[*] Database ready.")
 
     def _hash_password(self, password: str) -> str:
         """
@@ -43,7 +45,7 @@ class DatabaseManager:
         """
         hashed_pw = self._hash_password(password)
         user = None
-        
+        #ביצוע שאילתה
         with self._lock:
             conn = sqlite3.connect(self._db_name)
             cursor = conn.cursor()
@@ -51,15 +53,17 @@ class DatabaseManager:
                 cursor.execute("SELECT id, username FROM users WHERE email=? AND password=?", 
                                (email, hashed_pw))
                 user = cursor.fetchone()
+            except Exception as e:
+                logger.error(f"Error: {e}")
             finally:
-                conn.close() # סגירה בטוחה בתוך ה-finally
+                conn.close()
         return user
 
     def register(self, username: str, email: str, password: str):
         """
         פונקציה לרישום משתמש חדש לבסיס הנתונים.
         מבצעת שמירה של הנתונים ומוודאת שאין כפילויות.
-        מחזירה מילון עם מפתח 'status' והודעת שגיאה במקרה הצורך.
+        מחזירה מילון עם מפתח 'סטטוס' והודעת שגיאה במקרה הצורך.
         """
         hashed_pw = self._hash_password(password)
         response_data = {}
@@ -72,17 +76,22 @@ class DatabaseManager:
                                (username, email, hashed_pw))
                 conn.commit()
                 response_data = {"status": "ok"}
-                print(f"Created new user: {username}")
+                logger.info(f"Created new user: {username}")
+            #בדיקת שגיאות
             except sqlite3.IntegrityError as e:
                 error_message = str(e).lower()
                 if "username" in error_message:
                     response_data = {"status": "fail", "error": "Username Already Exists"}
+                    logger.warning("Username Already Exists")
                 elif "email" in error_message:
                     response_data = {"status": "fail", "error": "Email Already Exists"}
+                    logger.warning("Email Already Exists")
                 else:
                     response_data = {"status": "fail", "error": "Username or Email Already Exists"}
+                    logger.warning("Username or Email Already Existss")
             except Exception as e:
                 response_data = {"status": "fail", "error": f"General error: {e}"}
+                logger.error(f"Error: {e}")
             finally:
                 conn.close() # סגירה מבטיחה שה-DB לא יישאר נעול
                 
@@ -91,12 +100,13 @@ class DatabaseManager:
     def update_user_stats(self, username : str , won : bool , correct_count :int):
         """
         מעדכנת את הסטטיסטיקות של המשתמש בסיום משחק.
-        won: בוליאני (True אם ניצח, False אם לא)
+        won: בוליאני (אמת אם ניצח, שקר אם לא)
         correct_count: מספר התשובות הנכונות בחידון הספציפי הזה
         """
         with self._lock:
             conn = sqlite3.connect(self._db_name) # פתיחה בתוך הפונקציה
             cursor = conn.cursor()
+            #הכנסת נתונים
             try:
                 win_increment = 1 if won else 0
                 cursor.execute('''
@@ -109,7 +119,7 @@ class DatabaseManager:
                 conn.commit()
                 return {"status": "ok"}
             except Exception as e:
-                print(f"Error updating stats: {e}")
+                logger.error(f"Error updating stats: {e}")
                 return {"status": "fail", "error": str(e)}
             finally:
                 conn.close()
@@ -130,6 +140,7 @@ class DatabaseManager:
                     WHERE id=?
                 """, (user_id,))
                 row = cursor.fetchone()
+                #סידור במילון
                 if row:
                     stats = {
                         "wins": row[0],
@@ -137,7 +148,7 @@ class DatabaseManager:
                         "total_correct_answers": row[2]
                     }
             except Exception as e:
-                print(f"Error fetching stats for user {user_id}: {e}")
+                logger.error(f"Error fetching stats for user {user_id}: {e}")
             finally:
                 conn.close()
         return stats

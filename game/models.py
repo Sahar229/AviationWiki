@@ -1,32 +1,46 @@
-import string, random
+import string, random, time
 from config import GameRules
-
-
+from utils.logger import logger
 
 class Question:
-    def __init__(self, question_text, option1, option2, option3, option4, correct_option_number):
+    """
+    מחלקה שמייצגת שאלה בחידון
+    """
+    def __init__(self, question_text : str, option1 : str, option2 : str, option3 : str, option4 : str, correct_option_number : int):
         self._question_text = question_text
         self._options = [option1, option2, option3, option4]
         self._correct_option_number = correct_option_number
 
-    def get_correct_answer_text(self):
+    def get_correct_answer_text(self) -> str:
         return self._options[self._correct_option_number - 1]
 
     @property
     def question_text(self):
         return self._question_text
 
-    def check_answer(self, option_number):
+    def check_answer(self, option_number : int) -> bool:
+        """
+        בודקת האם התשובה נכונה
+        מקבלת קלט של אופציה בחירה מ1-4 
+        מחזירה אמת או שקר על הבדיקה
+        """
         return int(option_number) == self._correct_option_number
 
     def to_dict_client(self):
+        """
+        מחזירה שאלה בתור מילון המוכן לשליחה בסוקט והצגה
+        """
         return {
             "question_text": self._question_text,
             "options": [{"id": i+1, "text": opt} for i, opt in enumerate(self._options)]
         }
 
 class Room:
-    def __init__(self, room_code, host_name, is_private, max_players, num_questions=GameRules.DEFAULT_NUM_QUESTIONS):
+    """
+    מחלקה המייצגת חדר משחק
+    """
+    def __init__(self, room_code : str, host_name : str, is_private : bool, max_players : int, num_questions=GameRules.DEFAULT_NUM_QUESTIONS):
+        #נתוני חדר
         self._code = room_code
         self._host = host_name
         self._players = [host_name]
@@ -35,7 +49,7 @@ class Room:
         self._num_questions = num_questions
         self._status = "waiting"
         
-        # --- Game State ---
+        # נתוני משחק
         self._questions = []
         self._current_question_idx = 0
         self._scores = {host_name: 0}
@@ -43,6 +57,7 @@ class Room:
         self._round_answers = {}
         self._round_start_time = None
 
+    #גטים וסטים
     @property
     def code(self): return self._code
     
@@ -96,37 +111,54 @@ class Room:
     def questions(self, selected_questions):
         self._questions = selected_questions
 
-    # 3. קידום אינדקס השאלה (במקום room.current_question_idx += 1)
+    
+    #פעולות חיוניות למשחק
+    
     def advance_question(self):
+        """
+        מקדמת את המשחק בשאלה
+        """
         self._current_question_idx += 1
 
-    # 4. הכנות לסבב חדש (איפוס תשובות ושמירת זמן)
-    def start_new_round(self, current_time):
+    def start_new_round(self):
+        """
+        מתחילה ראונד חדש
+        מאפסת את רשימת התשובות של המשתמש ורושמת את הזמן שהביאו לה כקלט
+        """
         self._round_answers = {}
-        self._round_start_time = current_time
+        self._round_start_time = time.time
 
-    # 5. קבלת תשובה משחקן
-    def register_answer(self, player_name, answer_idx):
+    def register_answer(self, player_name : str, answer_idx : int):
+        """
+        רושמת במילון לכל שחקן את התשובה שלו
+        """
         if player_name in self._players:
             self._round_answers[player_name] = answer_idx
 
-    # 6. עדכון ניקוד
-    def add_score(self, player_name, points):
+    def add_score(self, player_name : str, points : int):
+        """
+        מוסיפה לכל שחקן את הניקוד שלו
+        """
         if player_name in self._scores:
             self._scores[player_name] += points
 
-    # 7. עדכון כמות תשובות נכונות
-    def increment_total_correct(self, player_name):
+    def increment_total_correct(self, player_name : str):
+        """
+        מקדמת את מספר התשובות הנכונות של שחקן
+        """
         self._total_correct[player_name] += 1
 
 
-    def add_player(self, player_name):
-        """מנסה להוסיף שחקן לחדר. מחזיר True אם הצליח, אחרת מחזיר הודעת שגיאה."""
+    def add_player(self, player_name : str):
+        """מנסה להוסיף שחקן לחדר. מחזיר אמת אם הצליח, אחרת מחזיר הודעת שגיאה."""
         if self._status != "waiting":
+            logger.warning("Game already started")
             return False, "Game already started."
         if len(self._players) >= self._max_players:
+            logger.warning("Room is full")
             return False, "Room is full."
         if player_name in self._players:
+            logger.warning("Player is already in this room")
             return False, "You are already in this room."
 
         self._players.append(player_name)
@@ -137,7 +169,7 @@ class Room:
 
     def to_dict(self):
         """
-        ממיר את נתוני החדר למילון כדי שנוכל לשלוח אותו בקלות דרך SocketIO ללקוח (JSON).
+        ממיר את נתוני החדר למילון כדי שנוכל לשלוח אותו בקלות דרך סוקט ללקוח.
         """
         return {
             "code": self._code,
@@ -150,6 +182,9 @@ class Room:
         }
 
 class RoomManager:
+    """
+    מחלקה האחראית על כל החדרים הפועלים
+    """
     def __init__(self):
         self._active_rooms = {}
 
@@ -160,7 +195,10 @@ class RoomManager:
             if code not in self._active_rooms:
                 return code
 
-    def create_room(self, host_name, is_private, max_players, num_questions=10):
+    def create_room(self, host_name : str, is_private : bool, max_players : int, num_questions=GameRules.DEFAULT_NUM_QUESTIONS) -> Room:
+        """
+        יוצרת חדר חדש ומוסיפה אותו לרשימת החדרים
+        """
         code = self._generate_unique_code()
         new_room = Room(code, host_name, is_private, max_players, num_questions)
         self._active_rooms[code] = new_room

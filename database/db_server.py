@@ -3,6 +3,7 @@ import threading
 from database.protocol import *
 from database.db_manager import *
 from config import DBConfig
+from utils.logger import logger
 
 class DatabaseServer:
     """
@@ -28,10 +29,10 @@ class DatabaseServer:
             user = self._db.login(email,password)
             
             if user:
-                response_data = {"status": "ok", "user_id": user[0], "username": user[1]}
-                print(f"User {email} logged in successfully.")
+                response_data = {"status": "ok", "user_id": user[0], "username": user[1]}           
             else:
                 response_data = {"status": "fail", "error": "Incorrect Email or Password"}
+
         finally:
             ProtocolTools.send_message(client_socket, "LOGIN_RESPONSE", response_data)
     
@@ -65,11 +66,12 @@ class DatabaseServer:
         
             if username is None:
                 response_data = {"status": "fail", "error": "Missing username"}
+                logger.warning("Missing username")
             else:
                 response_data = self._db.update_user_stats(username, won, correct_count)
                 
         except Exception as e: # שיפור: תפיסת שגיאות ברמת השרת
-            print(f"Error in process_update_stats: {e}")
+            logger.error(f"Error in process_update_stats: {e}")
             response_data = {"status": "fail", "error": "Internal server error"}
         finally:
             ProtocolTools.send_message(client_socket, "UPDATE_STATS_RESPONSE", response_data)
@@ -92,9 +94,10 @@ class DatabaseServer:
                     response_data = {"status": "ok", "stats": stats}
                 else:
                     response_data = {"status": "fail", "error": "User not found"}
+                    logger.warning("User not found")
                     
         except Exception as e:
-            print(f"Error in process_get_stats: {e}")
+            logger.error(f"Error in process_get_stats: {e}")
             response_data = {"status": "fail", "error": "Internal server error"}
         finally:
             ProtocolTools.send_message(client_socket, "GET_STATS_RESPONSE", response_data)
@@ -107,15 +110,16 @@ class DatabaseServer:
         מאזינה לבקשות נכנסות, מנתבת אותן לפונקציה המתאימה, ובסיום דואגת לסגור את החיבור.
         מחזירה: כלום.
         """
-        print(f"[+] New connection from {client_address}")
         try:
             while True:
+                #קבלת נתונים
                 command, params = ProtocolTools.receive_message(client_socket)
                 if not command:
                     break
         
-                print(f"Received command: {command} from {client_address}")
+                logger.info(f"Received command: {command} from {client_address}")
 
+                #בדיקת פקודה ושליחה לפעולה המתאימה
                 if command == "LOGIN_REQUEST":
                     self._process_login(client_socket, params)
         
@@ -129,10 +133,9 @@ class DatabaseServer:
                     self._process_get_stats(client_socket, params)
 
         except Exception as e:
-            print(f"Error handling client: {e}")
+            logger.error(f"Error handling client: {e}")
         finally:
             client_socket.close()
-            print(f"[-] Connection closed {client_address}")
 
     def start_server(self) -> None:
         """
@@ -140,19 +143,14 @@ class DatabaseServer:
         פותחת סוקט האזנה ומקבלת חיבורים חדשים בלולאה אינסופית. כל חיבור חדש נפתח ב-Thread משלו.
         מחזירה: כלום.
         """
+        #מעלה לאוויר את השרת
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((self._ip, self._port))
         server.listen(5)
         
-        print(f"[*] Database Server listening on port {self._port}...")
+        logger.info(f"[*] Database Server listening on port {self._port}...")
         
         while True:
             client_socket, client_address = server.accept()
             client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
             client_thread.start()
-
-
-
-# if __name__ == "__main__":
-#     db_ser = DatabaseServer()
-#     db_ser.start_server()

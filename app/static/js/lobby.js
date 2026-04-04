@@ -1,4 +1,4 @@
-        // --- ניהול ממשק (UI) ---
+// ניהול ממשק המשתמש להגדרת סוג החדר כפרטי או פומבי
         let isPrivateRoom = false; 
 
         function setRoomType(type) {
@@ -20,15 +20,16 @@
         // --- תקשורת זמן אמת מול השרת (Socket.IO) ---
         // ==========================================
         
-        // 1. פתיחת החיבור מול השרת
+// פתיחת חיבור לשרת הסוקט ובקשת נתונים ראשוניים בעת התחברות
         const socket = io();
 
-        // 2. כשהחיבור מצליח, נבקש מיד את רשימת החדרים הפתוחים
+
         socket.on('connect', () => {
             console.log('Connected to WebSocket server!');
             socket.emit('get_public_rooms');
         });
 
+// המתנה לאישור יצירת חדר והעברת המשתמש לכתובת החדר החדש
         socket.on('room_created', (data) => {
             console.log("LOG: SERVER RESPONDED! Room created:", data);
             if(data.room_code) {
@@ -83,7 +84,7 @@
             });
         });
 
-        // 4. לחיצה על "יצירת חדר חדש"
+//  איסוף נתוני התצורה מהטופס ושליחת פיילוד לשרת ליצירת חדר חדש
         document.addEventListener('DOMContentLoaded', () => {
             console.log("LOG: DOM fully loaded and parsed");
 
@@ -114,7 +115,8 @@
                 });
             }
         });
-        // 5. לחיצה על הצטרפות דרך קוד ידני
+
+// קריאת קוד החדר מהקלט ושליחת בקשת הצטרפות בצורה ידנית
         document.getElementById('join-room-btn').addEventListener('click', () => {
             const roomCode = document.getElementById('room-code-input').value.trim().toUpperCase();
             if (roomCode.length !== 4) {
@@ -124,10 +126,8 @@
             socket.emit('join_room_request', { room_code: roomCode });
         });
 
-        // פונקציית עזר להצטרפות מתוך כפתור ה-Join ברשימת החדרים הפומביים
+// # פונקציית עזר להצטרפות לחדר פומבי דרך לחיצה על כפתור מהרשימה
         function joinSpecificRoom(code) {
             socket.emit('join_room_request', { room_code: code });
         }
-
-        // 6. טיפול בתשובות מהשרת (הצלחה או שגיאה)
-
+        
