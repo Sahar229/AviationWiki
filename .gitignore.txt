@@ -1,0 +1,5 @@
+# Security & Credentials
+*.pem
+
+# Databases
+users.db

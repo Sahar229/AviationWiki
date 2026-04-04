@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room {{ room_code }} - Waiting</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f8ff; text-align: center; margin-top: 50px; }
+        .room-container { background: white; padding: 30px; border-radius: 10px; width: 50%; margin: auto; box-shadow: 0px 0px 15px rgba(0,0,0,0.1); }
+        h1 { color: #004aad; font-size: 3em; margin-bottom: 5px; }
+        .players-list { list-style: none; padding: 0; font-size: 1.2em; text-align: left; width: 60%; margin: 20px auto; }
+        .players-list li { background: #e0f7fa; margin: 10px 0; padding: 10px; border-radius: 5px; border-left: 5px solid #00acc1; font-weight: bold;}
+        .start-btn { background-color: #28a745; color: white; border: none; padding: 15px 30px; font-size: 1.2em; border-radius: 5px; cursor: pointer; margin-top: 20px; font-weight: bold;}
+        .start-btn:hover { background-color: #218838; }
+        .waiting-text { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="room-container" id="waiting-view">
+        <h2>Room Code:</h2>
+        <h1>{{ room_code }}</h1>
+        <p>Waiting for players... (Max: {{ max_players }})</p>
+
+        <ul class="players-list" id="players-list">
+            </ul>
+
+        {% if is_host %}
+            <button class="start-btn" id="start-btn">🚀 Start Game</button>
+        {% else %}
+            <p class="waiting-text">Waiting for host to start the game...</p>
+        {% endif %}
+    </div>
+
+    <!-- Playing View -->
+    <div id="playing-view" style="display: none; width: 90%; margin: auto; max-width: 1200px;">
+        <div style="display: flex; gap: 20px;">
+            <!-- Left Side: Timer & Question -->
+            <div style="flex: 2; background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 15px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 id="q-number" style="color: #666; margin: 0;">Question 1/10</h2>
+                    <h2 style="color: #d9534f; margin: 0; font-size: 2em;">⏳ <span id="timer">15</span></h2>
+                </div>
+                
+                <h1 id="question-text" style="color: #004aad; margin-bottom: 30px; font-size: 2.2em;">Question goes here?</h1>
+                
+                <div id="options-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <!-- buttons generated dynamically -->
+                </div>
+            </div>
+
+            <!-- Right Side: Scoreboard -->
+            <div style="flex: 1; background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 15px rgba(0,0,0,0.1); height: max-content;">
+                <h2 style="color: #004aad; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-top: 0;">🏆 Scoreboard</h2>
+                <ul id="live-scoreboard" style="list-style: none; padding: 0; text-align: left; font-size: 1.2em;">
+                    <!-- scoreboard list items -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback View -->
+    <div id="feedback-view" class="room-container" style="display: none;">
+        <h1 id="feedback-title" style="font-size: 4em; margin-bottom: 10px;">Correct!</h1>
+        <h2 id="feedback-answer" style="color: #444;">The answer was: ...</h2>
+        <h3 id="feedback-points" style="color: #28a745; margin-top: 20px; font-size: 2em;">+100 Points</h3>
+        
+        <div style="margin-top: 30px;">
+            <h2 style="color: #004aad; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-top: 0;">🏆 Scoreboard</h2>
+            <ul id="feedback-scoreboard" style="list-style: none; padding: 0; text-align: left; font-size: 1.2em;">
+                <!-- scoreboard list items -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Final Results View -->
+    <div id="final-view" class="room-container" style="display: none; position: relative;">
+        <!-- Confetti wrapper logic could be here if wanted -->
+        <h1 style="color: #004aad; font-size: 3em; margin-bottom: 10px;">Game Over!</h1>
+        <h2 id="winner-display">Winner: <span id="winner-name" style="color: #28a745; font-size: 1.5em; text-decoration: underline;">Name</span></h2>
+        
+        <div style="margin: 30px 0;">
+            <h3 style="margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">Final Standings</h3>
+            <ul id="final-scoreboard" style="list-style: none; padding: 0; font-size: 1.4em; text-align: left; width: 60%; margin: 0 auto; background: #e0f7fa; border-radius: 10px; padding: 15px;">
+            </ul>
+        </div>
+        
+        <button class="start-btn" onclick="window.location.href='/quiz_lobby'">🏠 Return to Lobby</button>
+    </div>
+
+
+    <script>
+        const ROOM_CODE = "{{ room_code }}";
+        const IS_HOST = "{{ is_host }}" === "True";
+        const MY_USERNAME = "{{ session['username'] }}";
+    </script>
+    
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+
+</body>
+</html>
