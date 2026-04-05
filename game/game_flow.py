@@ -42,7 +42,7 @@ def start_next_round(room_code):
         socketio.start_background_task(timer_task, room.current_question_idx)
 
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|game_flow.py| Error in starting the next round")
 
 
 def end_round(room_code, question_idx):
@@ -92,7 +92,7 @@ def end_round(room_code, question_idx):
             
         socketio.start_background_task(next_round_task)
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|game_flow.py| Error in ending the round")
 
 def end_game(room_code):
     """
@@ -107,7 +107,13 @@ def end_game(room_code):
         #בדיקת מנצחים
         sorted_players = sorted(room.scores.items(), key=lambda x: x[1], reverse=True)
         max_score = sorted_players[0][1] if sorted_players else None
-        winner_names = [p[0] for p in sorted_players if p[1] == max_score] if sorted_players else []
+        
+        # הלוגיקה החדשה: מנצח קיים רק אם הציון הגבוה ביותר הוא מעל 0
+        if max_score is not None and max_score > 0:
+            winner_names = [p[0] for p in sorted_players if p[1] == max_score]
+        else:
+            # אם הציון הכי גבוה הוא 0 (או פחות), הרשימה נשארת ריקה - אין מנצחים!
+            winner_names = []
         
         #שליחת נתונים למסד נתונים
         for player_name in room.players:
@@ -125,4 +131,4 @@ def end_game(room_code):
             'winners': winner_names
         }, to=room_code)
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|game_flow.py| Error in ending the game")

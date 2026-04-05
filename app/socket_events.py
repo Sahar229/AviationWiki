@@ -15,7 +15,7 @@ def handle_create_room(data):
     פונקציה המטפלת בלחיצת כפתור של יצירת חדר
     """
     user = session.get('username')
-    logger.info(f"Payload for creating a room received: {data}")
+    logger.info(f"|socket_events.py| Payload for creating a room received: {data}")
 
     try:
         #קליטת נתונים
@@ -25,17 +25,17 @@ def handle_create_room(data):
         
         #יצירת חדר
         new_room = game_manager.create_room(user, is_p, max_p, num_q)
-        logger.info(f"Room Created in Memory: {new_room.code}")
+        logger.info(f"|socket_events.py| Room Created in Memory: {new_room.code}")
         
         join_room(new_room.code)
         
-        logger.info(f"Emitting 'room_created' for room {new_room.code}")
+        logger.info(f"|socket_events.py| Emitting 'room_created' for room {new_room.code}")
         emit('room_created', {'room_code': new_room.code, 'room_data': new_room.to_dict()})
 
         if not is_p:
             broadcast_public_rooms()
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|socket_events.py| Error in creating a room")
 
 
 @socketio.on('join_room_request')
@@ -51,7 +51,7 @@ def handle_join_room(data):
         
         if not room:
             emit('join_error', {'message': 'Room not found.'})
-            logger.warning("tried to join non exisiting room")
+            logger.warning("|socket_events.py| tried to join non exisiting room")
             return
             
         # מנסים להוסיף את השחקן למחלקת החדר
@@ -59,11 +59,11 @@ def handle_join_room(data):
         
         if not success:
             emit('join_error', {'message': message})
-            logger.error("error while trying to join room")
+            logger.error("|socket_events.py| error while trying to join room")
             return
             
         # הכל תקין
-        logger.info(f"{username} joined to room {room_code}")
+        logger.info(f"|socket_events.py| {username} joined to room {room_code}")
         join_room(room_code)
         emit('room_joined', {'room_code': room_code, 'room_data': room.to_dict()})
         emit('player_joined', {'username': username, 'room_data': room.to_dict()}, to=room_code)
@@ -71,7 +71,7 @@ def handle_join_room(data):
         
         broadcast_public_rooms()
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|socket_events.py| Error in joining room")
 
 
 
@@ -91,7 +91,7 @@ def broadcast_public_rooms():
         public_rooms = game_manager.get_public_waiting_rooms()
         socketio.emit('public_rooms_update', public_rooms)
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|socket_events.py| Error in brodcasting public rooms")
 
 @socketio.on('join_room_socket')
 def handle_join_room_socket(data):
@@ -109,7 +109,7 @@ def handle_join_room_socket(data):
             # שידור רשימת השחקנים המעודכנת לכל מי שבחדר
             emit('update_players', {'players': room.players}, to=room_code)
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|socket_events.py| Error in joining room socket")
 
 
 @socketio.on('start_game_request')
@@ -124,6 +124,9 @@ def handle_start_game(data):
         room = game_manager.get_room(room_code)
         if not room or room.host != username or room.status != "waiting":
             return
+        if len(room.players) < GameRules.MIN_PLAYERS:
+            emit('not_enough_players', {}, to=room_code)
+            return
             
         room.status = "playing"
         try:
@@ -132,8 +135,8 @@ def handle_start_game(data):
             room.questions = AMERICAN_AIRCRAFT_QUESTIONS
 
         broadcast_public_rooms()
-        # emit('game_started', {}, to=room_code)
-        logger.info(f"starting game in room {room_code}")
+        emit('game_started', {}, to=room_code)
+        logger.info(f"|socket_events.py| starting game in room {room_code}")
         #קריאה לסיבוב הבא - הראשון
         def initial_start_task():
             """
@@ -143,7 +146,7 @@ def handle_start_game(data):
             game_flow.start_next_round(room_code)
         socketio.start_background_task(initial_start_task)
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|socket_events.py| Error in starting game")
 
 
 
@@ -183,4 +186,4 @@ def handle_submit_answer(data):
         if len(room.round_answers) == len(room.players):
             socketio.start_background_task(game_flow.end_round, room_code, room.current_question_idx)
     except Exception as e:
-        logger.error(f"Error: {e}")
+        logger.exception("|socket_events.py| Error in submitting answer")

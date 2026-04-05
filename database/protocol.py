@@ -36,7 +36,7 @@ class ProtocolTools:
             sock.sendall(header + message_bytes)
             return True
         except Exception as e:
-            logger.error(f"Error sending message: {e}")
+            logger.exception(f"|protocol.py| Error sending message")
             return False
 
     @classmethod
@@ -47,7 +47,7 @@ class ProtocolTools:
         מחזירה טאפל של (פקודה, פרמטרים). במקרה של שגיאה או ניתוק, מחזירה כלום
         """
         try:
-            # 1. קריאת ההדר
+            # קריאת ההדר
             header = b""
             while len(header) < cls.HEADER_LENGTH:
                 packet = sock.recv(cls.HEADER_LENGTH - len(header))
@@ -57,7 +57,7 @@ class ProtocolTools:
             
             message_length = int(header.decode('utf-8'))
             
-            # 2. קריאת המידע עצמו לפי האורך שהתקבל
+            # קריאת המידע עצמו לפי האורך שהתקבל
             data = b""
             while len(data) < message_length:
                 packet = sock.recv(message_length - len(data))
@@ -65,10 +65,10 @@ class ProtocolTools:
                     return None, None
                 data += packet
                 
-            # 3. המרה מגייסון
+            # המרה מגייסון
             message_dict = json.loads(data.decode('utf-8'))
             return message_dict["command"], message_dict["params"]
             
         except Exception as e:
-            logger.error(f"Error: {e}")
+            logger.exception("|protocol.py| Error receiving a message")
             return None, None

@@ -26,5 +26,5 @@ class DatabaseClient:
             sock.close()
             return response_data
         except Exception as e:
-            logger.error(f"Database connection error: {e}")
+            logger.exception(f"|db_client.py| Database connection error")
             return None

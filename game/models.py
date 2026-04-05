@@ -152,13 +152,13 @@ class Room:
     def add_player(self, player_name : str):
         """מנסה להוסיף שחקן לחדר. מחזיר אמת אם הצליח, אחרת מחזיר הודעת שגיאה."""
         if self._status != "waiting":
-            logger.warning("Game already started")
+            logger.warning(f"|models.py| {player_name} tried to join a game that already started")
             return False, "Game already started."
         if len(self._players) >= self._max_players:
-            logger.warning("Room is full")
+            logger.warning(f"|models.py| {player_name} tried to join a full room")
             return False, "Room is full."
         if player_name in self._players:
-            logger.warning("Player is already in this room")
+            logger.warning(f"|models.py| {player_name} is already in this room")
             return False, "You are already in this room."
 
         self._players.append(player_name)

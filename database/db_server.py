@@ -66,12 +66,12 @@ class DatabaseServer:
         
             if username is None:
                 response_data = {"status": "fail", "error": "Missing username"}
-                logger.warning("Missing username")
+                logger.warning("|db_server.py| Missing username")
             else:
                 response_data = self._db.update_user_stats(username, won, correct_count)
                 
         except Exception as e: # שיפור: תפיסת שגיאות ברמת השרת
-            logger.error(f"Error in process_update_stats: {e}")
+            logger.exception(f"|db_server.py|Error in process_update_stats")
             response_data = {"status": "fail", "error": "Internal server error"}
         finally:
             ProtocolTools.send_message(client_socket, "UPDATE_STATS_RESPONSE", response_data)
@@ -94,10 +94,10 @@ class DatabaseServer:
                     response_data = {"status": "ok", "stats": stats}
                 else:
                     response_data = {"status": "fail", "error": "User not found"}
-                    logger.warning("User not found")
+                    logger.warning("|db_server.py| User not found")
                     
         except Exception as e:
-            logger.error(f"Error in process_get_stats: {e}")
+            logger.exception(f"|db_server.py| Error in process_get_stats")
             response_data = {"status": "fail", "error": "Internal server error"}
         finally:
             ProtocolTools.send_message(client_socket, "GET_STATS_RESPONSE", response_data)
@@ -117,7 +117,7 @@ class DatabaseServer:
                 if not command:
                     break
         
-                logger.info(f"Received command: {command} from {client_address}")
+                logger.info(f"|db_server.py| Received command: {command} from {client_address}")
 
                 #בדיקת פקודה ושליחה לפעולה המתאימה
                 if command == "LOGIN_REQUEST":
@@ -133,7 +133,7 @@ class DatabaseServer:
                     self._process_get_stats(client_socket, params)
 
         except Exception as e:
-            logger.error(f"Error handling client: {e}")
+            logger.exception("|db_server.py| Error handling client")
         finally:
             client_socket.close()
 
@@ -148,7 +148,7 @@ class DatabaseServer:
         server.bind((self._ip, self._port))
         server.listen(5)
         
-        logger.info(f"[*] Database Server listening on port {self._port}...")
+        logger.info(f"|db_server.py| [*] Database Server listening on port {self._port}...")
         
         while True:
             client_socket, client_address = server.accept()

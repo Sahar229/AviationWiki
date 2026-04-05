@@ -29,13 +29,7 @@ class DatabaseManager:
             ''')
             conn.commit()
             conn.close()
-        logger.info("[*] Database ready.")
-
-    def _hash_password(self, password: str) -> str:
-        """
-        פונקציית עזר להצפנת סיסמה. מקבלת סיסמה כטקסט גלוי ומחזירה אותה מוצפנת.
-        """
-        return hashlib.sha256(password.encode('utf-8')).hexdigest()
+        logger.info("|db_manager.py| [*] Database ready.")
 
     def login(self, email: str, password: str):
         """
@@ -43,7 +37,6 @@ class DatabaseManager:
         מחפשת במסד הנתונים משתמש עם האימייל והסיסמה שסופקו.
         מחזירה טאפל המכיל את אם נמצאה התאמה, או כלום אם לא.
         """
-        hashed_pw = self._hash_password(password)
         user = None
         #ביצוע שאילתה
         with self._lock:
@@ -51,10 +44,10 @@ class DatabaseManager:
             cursor = conn.cursor()
             try:
                 cursor.execute("SELECT id, username FROM users WHERE email=? AND password=?", 
-                               (email, hashed_pw))
+                               (email, password))
                 user = cursor.fetchone()
             except Exception as e:
-                logger.error(f"Error: {e}")
+                logger.exception("|db_manager.py| Error in login")
             finally:
                 conn.close()
         return user
@@ -65,7 +58,6 @@ class DatabaseManager:
         מבצעת שמירה של הנתונים ומוודאת שאין כפילויות.
         מחזירה מילון עם מפתח 'סטטוס' והודעת שגיאה במקרה הצורך.
         """
-        hashed_pw = self._hash_password(password)
         response_data = {}
         
         with self._lock:
@@ -73,25 +65,25 @@ class DatabaseManager:
             cursor = conn.cursor()
             try:
                 cursor.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", 
-                               (username, email, hashed_pw))
+                               (username, email, password))
                 conn.commit()
                 response_data = {"status": "ok"}
-                logger.info(f"Created new user: {username}")
+                logger.info(f"|db_manager.py| Created new user: {username}")
             #בדיקת שגיאות
             except sqlite3.IntegrityError as e:
                 error_message = str(e).lower()
                 if "username" in error_message:
                     response_data = {"status": "fail", "error": "Username Already Exists"}
-                    logger.warning("Username Already Exists")
+                    logger.warning(f"|db_manager.py| Username {username} Already Exists")
                 elif "email" in error_message:
                     response_data = {"status": "fail", "error": "Email Already Exists"}
-                    logger.warning("Email Already Exists")
+                    logger.warning(f"|db_manager.py| Email {email} Already Exists")
                 else:
                     response_data = {"status": "fail", "error": "Username or Email Already Exists"}
-                    logger.warning("Username or Email Already Existss")
+                    logger.warning("|db_manager.py| Username or Email Already Existss")
             except Exception as e:
                 response_data = {"status": "fail", "error": f"General error: {e}"}
-                logger.error(f"Error: {e}")
+                logger.exception("|db_manager.py| Error in register")
             finally:
                 conn.close() # סגירה מבטיחה שה-DB לא יישאר נעול
                 
@@ -119,7 +111,7 @@ class DatabaseManager:
                 conn.commit()
                 return {"status": "ok"}
             except Exception as e:
-                logger.error(f"Error updating stats: {e}")
+                logger.exception("|db_manager.py| Error updating stats")
                 return {"status": "fail", "error": str(e)}
             finally:
                 conn.close()
@@ -148,7 +140,7 @@ class DatabaseManager:
                         "total_correct_answers": row[2]
                     }
             except Exception as e:
-                logger.error(f"Error fetching stats for user {user_id}: {e}")
+                logger.exception(f"|db_manager.py| Error fetching stats for user {user_id}")
             finally:
                 conn.close()
         return stats

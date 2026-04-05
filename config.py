@@ -16,6 +16,7 @@ class GameRules:
     """חוקי המשחק והחידון"""
     DEFAULT_MAX_PLAYERS = 4
     DEFAULT_NUM_QUESTIONS = 10
+    MIN_PLAYERS = 2
     
     # זמנים (בשניות)
     QUESTION_TIMER = 15

@@ -21,4 +21,4 @@ socketio = SocketIO(app)
 game_manager = RoomManager()
 db_req = DatabaseClient(DBConfig.HOST2,DBConfig.PORT)
 
-logger.info("created all of the global instances")
+logger.info("|globals.py| created all of the global instances")

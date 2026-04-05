@@ -12,7 +12,7 @@ def start_database_server():
     """
     db_ser = DatabaseServer()
     db_ser.start_server()
-    logger.info("Starting DB Server thread")
+    logger.info("|run.py| Starting DB Server thread")
 
 if __name__ == "__main__":
 
@@ -26,4 +26,4 @@ if __name__ == "__main__":
                  keyfile=ServerConfig.KEY_FILE,
                  use_reloader=False)
     
-    logger.info("starting main server")
+    logger.info("|run.py| starting main server")

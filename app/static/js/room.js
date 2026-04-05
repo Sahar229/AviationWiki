@@ -61,10 +61,14 @@ if (IS_HOST) {
 // Game Events
 // =======================
 
-// עדכון ראשוני של מבנה טבלת הניקוד עבור כל השחקנים
-// socket.on('game_started', () => {
-//     console.log("Game started by host");
-// });
+
+socket.on('not_enough_players', () => {
+    alert("Not Enough Players to Start The Game!");
+});
+
+socket.on('game_started', () => {
+    alert("Game Has Started By The Host!");
+});
 
 socket.on('start_round', (data) => {
     showView(playingView);
@@ -167,7 +171,9 @@ socket.on('game_over', (data) => {
         winnerDisplay.innerHTML = `Winners: <span id="winner-name" style="color: #28a745; font-size: 1.5em; text-decoration: underline;">${data.winners.join(', ')}</span>`;
     } else if (data.winners && data.winners.length === 1) {
         winnerDisplay.innerHTML = `Winner: <span id="winner-name" style="color: #28a745; font-size: 1.5em; text-decoration: underline;">${data.winners[0]}</span>`;
-    } else if (data.standings.length > 0) {
+    } else if (data.winners && data.winners.length === 0) {
+        winnerDisplay.innerHTML = `<span style="color: #f77c11; font-size: 1.5em; font-weight: bold;">Nobody Won!</span>`;
+    } else if (data.standings.length > 0) {rgb(220, 98, 53)
         winnerDisplay.innerHTML = `Winner: <span id="winner-name" style="color: #28a745; font-size: 1.5em; text-decoration: underline;">${data.standings[0].name}</span>`;
     }
     
