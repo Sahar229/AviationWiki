@@ -6,3 +6,6 @@ users.db
 
 #logs
 *.log
+
+#cache
+__pycache__/
