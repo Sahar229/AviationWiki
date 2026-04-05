@@ -6,8 +6,10 @@ import random
 from game.questions import AMERICAN_AIRCRAFT_QUESTIONS
 from config import GameRules
 from utils.logger import logger
+from flask import request
 
-
+connected_users = {}
+pending_disconnects = {}
 
 @socketio.on('create_room')
 def handle_create_room(data):
@@ -93,6 +95,7 @@ def broadcast_public_rooms():
     except Exception as e:
         logger.exception("|socket_events.py| Error in brodcasting public rooms")
 
+
 @socketio.on('join_room_socket')
 def handle_join_room_socket(data):
     """
@@ -101,13 +104,23 @@ def handle_join_room_socket(data):
     """
     try:
         room_code = data.get('room_code')
+        username = session.get('username')
         room = game_manager.get_room(room_code)
-        
+        session['current_room'] = room_code
+        if username in pending_disconnects:
+            logger.info(f"|socket_events.py| User {username} reconnected to {room_code} within grace period!")
+            del pending_disconnects[username]
+
         if room:
             # צירוף הסוקט לחדר
             join_room(room_code)
+
+            connected_users[request.sid] = {
+            'username': username,
+            'room_code': room_code
+            }
             # שידור רשימת השחקנים המעודכנת לכל מי שבחדר
-            emit('update_players', {'players': room.players}, to=room_code)
+            emit('update_players', {'players': room.players, 'host': room.host}, to=room_code)
     except Exception as e:
         logger.exception("|socket_events.py| Error in joining room socket")
 
@@ -183,7 +196,77 @@ def handle_submit_answer(data):
         room.add_score(username, points_awarded)
         
         #בדיקה האם כולם ענו
-        if len(room.round_answers) == len(room.players):
+        if len(room.round_answers) >= room.get_active_players_count():
             socketio.start_background_task(game_flow.end_round, room_code, room.current_question_idx)
     except Exception as e:
         logger.exception("|socket_events.py| Error in submitting answer")
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """
+    פונקציה המטפלת בכל מקרי ניתוק של שחקן מהחדר
+    """
+    try:
+        sid = request.sid
+        if sid not in connected_users:
+            return
+            
+        user_info = connected_users.pop(sid)
+        username = user_info['username']
+        room_code = user_info['room_code']
+        
+        room = game_manager.get_room(room_code)
+        if not room: return
+        pending_disconnects[username] = room_code
+        def delayed_remove():
+            socketio.sleep(GameRules.REFRESH_DELAY)
+            if pending_disconnects.get(username) == room_code:
+                # במצב המתנה
+                if room.status == "waiting":
+                    is_empty = room.remove_player_waiting(username)
+                    logger.info(f"|socket_events.py| removing {username} from room {room_code}")
+
+                    if is_empty:
+                        # חדר ריק ולכן מוחקים אותו
+                        if room_code in game_manager._active_rooms:
+                            del game_manager._active_rooms[room_code]
+                            logger.info(f"|socket_events.py| Room {room_code} is empty, deleting the room")
+                        broadcast_public_rooms()
+                        
+                    else:
+                        # מארח יצא, מעבירים מארח
+                        if room.host == username:
+                            new_host = room.reassign_host()
+                            logger.info(f"|socket_events.py| {username} was host, transfers host to {new_host}")
+                        
+                        # עדכון שמישהו יצא
+                        emit('update_players', {'players': room.players, 'host': room.host}, to=room_code)
+                        broadcast_public_rooms()
+
+                # במצב משחק
+                elif room.status == "playing":
+                    room.set_player_inactive(username)
+                    active_count = room.get_active_players_count()
+                    logger.info(f"|socket_events.py| {username} left room {room_code}")
+                    # שחקן אחרון, לבטל את המשחק
+                    if active_count == 0 or (active_count == 1 and len(room.players) > 1):
+                        room.status = "finished"
+                        
+                        # אם נשאר מישהו אחד, נשלח לו הודעה לפני שהחדר נעלם
+                        if active_count == 1:
+                            emit('game_aborted', {'message': 'Game ended because too many players left.'}, to=room_code)
+                            logger.info(f"|socket_events.py| Room {room_code} was empty, aborting the game")
+                        
+                        # מחיקה סופית מהשרת
+                        if room_code in game_manager._active_rooms:
+                            del game_manager._active_rooms[room_code]
+                        
+                    # לבדוק אם עכשיו בגלל שהוא יצא, כל מי שנשאר כבר ענה
+                    else:
+                        if len(room.round_answers) >= active_count:
+                            socketio.start_background_task(game_flow.end_round, room_code, room.current_question_idx)
+                del pending_disconnects[username]
+        socketio.start_background_task(delayed_remove)
+    except Exception as e:
+        logger.exception("Error in disconnecting player")

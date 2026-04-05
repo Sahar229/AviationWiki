@@ -48,6 +48,7 @@ class Room:
         self._max_players = max_players
         self._num_questions = num_questions
         self._status = "waiting"
+        self._active_players_status = {host_name: True}
         
         # נתוני משחק
         self._questions = []
@@ -78,6 +79,9 @@ class Room:
 
     @property
     def status(self): return self._status
+
+    @property
+    def active_players_status(self): return self._active_players_status.copy()
 
     @property
     def questions(self): return self._questions
@@ -148,22 +152,50 @@ class Room:
         """
         self._total_correct[player_name] += 1
 
+    def get_active_players_count(self):
+        """מחזיר את כמות השחקנים שעדיין מחוברים למשחק"""
+        return sum(1 for status in self._active_players_status.values() if status)
+    
+    def set_player_inactive(self, player_name):
+        """מסמן שחקן כלא פעיל במהלך משחק"""
+        if player_name in self._active_players_status:
+            self._active_players_status[player_name] = False
+
+    def remove_player_waiting(self, player_name):
+        """מוחק שחקן מהחדר (מיועד רק למצב המתנה). מחזיר אמת אם החדר התרוקן."""
+        if player_name in self._players:
+            self._players.remove(player_name)
+            if player_name in self._scores: del self._scores[player_name]
+            if player_name in self._total_correct: del self._total_correct[player_name]
+            if player_name in self._active_players_status: del self._active_players_status[player_name]
+        logger.info(f"|models.py| removing {player_name} from room {self._code}")
+        return len(self._players) == 0
+
+    def reassign_host(self):
+        """מעביר את האירוח לשחקן הראשון ברשימה (אם יש כזה)"""
+        if len(self._players) > 0:
+            self._host = self._players[0]
+            return self._host
+        return None
+
 
     def add_player(self, player_name : str):
         """מנסה להוסיף שחקן לחדר. מחזיר אמת אם הצליח, אחרת מחזיר הודעת שגיאה."""
         if self._status != "waiting":
-            logger.warning(f"|models.py| {player_name} tried to join a game that already started")
+            logger.warning(f"|models.py| {player_name} tried to join a game that already started in room {self._code}")
             return False, "Game already started."
         if len(self._players) >= self._max_players:
-            logger.warning(f"|models.py| {player_name} tried to join a full room")
+            logger.warning(f"|models.py| {player_name} tried to join a full room {self._code}")
             return False, "Room is full."
         if player_name in self._players:
-            logger.warning(f"|models.py| {player_name} is already in this room")
+            logger.warning(f"|models.py| {player_name} is already in room {self._code}")
             return False, "You are already in this room."
 
         self._players.append(player_name)
         self._scores[player_name] = 0
         self._total_correct[player_name] = 0
+        self._active_players_status[player_name] = True
+        logger.info(f"|models.py| added {player_name} to room {self._code}")
         return True, "Success"
     
 

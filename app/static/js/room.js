@@ -33,8 +33,13 @@ socket.on('update_players', (data) => {
         data.players.forEach(player => {
             const li = document.createElement('li');
             li.textContent = player;
-            if (data.players.indexOf(player) === 0) {
+            if (player === data.host) { // שינוי כאן - בודקים מול הנתון מהשרת
                 li.textContent += ' 👑 (Host)';
+                // אם פתאום אני המארח החדש, נציג לי את כפתור ההתחלה
+                if (player === MY_USERNAME && document.getElementById('start-btn')) {
+                    document.getElementById('start-btn').style.display = 'block';
+                    IS_HOST = true; // עדכון המשתנה המקומי
+                }
             }
             playersList.appendChild(li);
         });
@@ -57,6 +62,10 @@ if (IS_HOST) {
     }
 }
 
+document.getElementById('leave-btn').addEventListener('click', () => {
+    window.location.href = '/quiz_lobby';
+});
+
 // =======================
 // Game Events
 // =======================
@@ -68,6 +77,13 @@ socket.on('not_enough_players', () => {
 
 socket.on('game_started', () => {
     alert("Game Has Started By The Host!");
+});
+
+//אם נשאר רק שחקן אחד, הפונקציה מעיפה אותו מהמשחק
+socket.on('game_aborted', (data) => {
+    if (currentTimer) clearInterval(currentTimer);
+    alert("The other players left the room. " + data.message);
+    window.location.href = '/quiz_lobby'; // לזרוק אותו חזרה ללובי
 });
 
 socket.on('start_round', (data) => {
@@ -218,3 +234,14 @@ function renderScoreboard() {
         });
     });
 }
+
+// האזנה לאירוע ניתוק
+window.addEventListener('beforeunload', (event) => {
+    const playingView = document.getElementById('playing-view');
+    if (playingView && playingView.style.display === 'block') {
+        
+        // הקפצת הודעת אישור יציאה
+        event.preventDefault();
+        event.returnValue = ''; 
+    }
+});

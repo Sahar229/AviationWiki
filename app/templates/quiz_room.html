@@ -11,9 +11,40 @@
         h1 { color: #004aad; font-size: 3em; margin-bottom: 5px; }
         .players-list { list-style: none; padding: 0; font-size: 1.2em; text-align: left; width: 60%; margin: 20px auto; }
         .players-list li { background: #e0f7fa; margin: 10px 0; padding: 10px; border-radius: 5px; border-left: 5px solid #00acc1; font-weight: bold;}
-        .start-btn { background-color: #28a745; color: white; border: none; padding: 15px 30px; font-size: 1.2em; border-radius: 5px; cursor: pointer; margin-top: 20px; font-weight: bold;}
+        .start-btn { 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            display: block; /* הופך את הכפתור לבלוק כדי שנוכל למרכז אותו */
+            margin: 0 auto 20px auto; /* 20 פיקסלים מלמעלה, ואוטומטי (ממורכז) בשאר הצדדים */
+            padding: 15px 30px;
+            font-size: 1.2em; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
         .start-btn:hover { background-color: #218838; }
         .waiting-text { color: #666; font-style: italic; }
+        /* עיצוב כפתור עזיבה */
+        .leave-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            display: block;
+            /* מרכוז ללא רווח נוסף למטה */
+            margin: 0 auto; 
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .leave-btn:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -28,8 +59,10 @@
 
         {% if is_host %}
             <button class="start-btn" id="start-btn">🚀 Start Game</button>
+            <button class="leave-btn" id="leave-btn">Leave Room</button>
         {% else %}
             <p class="waiting-text">Waiting for host to start the game...</p>
+            <button id="leave-btn" class="leave-btn">Leave Room</button>
         {% endif %}
     </div>
 
