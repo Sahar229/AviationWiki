@@ -27,22 +27,34 @@ socket.on('connect', () => {
 
 // קבלת רשימת השחקנים העדכנית והצגתה תוך סימון המארח
 socket.on('update_players', (data) => {
+    console.log("updating players")
     const playersList = document.getElementById('players-list');
+    const startBtn = document.getElementById('start-btn');
     if (playersList) {
         playersList.innerHTML = '';
-        data.players.forEach(player => {
+        data.players.forEach((player, index) => {
             const li = document.createElement('li');
             li.textContent = player;
-            if (player === data.host) { // שינוי כאן - בודקים מול הנתון מהשרת
+            if (index === 0) { // שינוי כאן - בודקים מול הנתון מהשרת
                 li.textContent += ' 👑 (Host)';
                 // אם פתאום אני המארח החדש, נציג לי את כפתור ההתחלה
-                if (player === MY_USERNAME && document.getElementById('start-btn')) {
-                    document.getElementById('start-btn').style.display = 'block';
-                    IS_HOST = true; // עדכון המשתנה המקומי
-                }
+                // if (player === MY_USERNAME && document.getElementById('start-btn')) {
+                //     document.getElementById('start-btn').style.display = 'block';
+                //     IS_HOST = true; // עדכון המשתנה המקומי
+                // }
             }
             playersList.appendChild(li);
         });
+
+        if (data.players.length > 0 && data.players[0] === MY_USERNAME) {
+            console.log("Im the host!")
+            IS_HOST = true; // אני המארח!
+            if (startBtn) startBtn.style.display = 'inline-block'; // מציגים את הכפתור
+        } else {
+            console.log("Im not the host!")
+            IS_HOST = false; // אני לא המארח
+            if (startBtn) startBtn.style.display = 'none'; // מסתירים את הכפתור
+        }
         
         // עדכון ראשוני של מבנה טבלת הניקוד עבור כל השחקנים
         data.players.forEach(p => {
@@ -53,13 +65,15 @@ socket.on('update_players', (data) => {
     }
 });
 
-if (IS_HOST) {
-    const startBtn = document.getElementById('start-btn');
-    if (startBtn) {
-        startBtn.addEventListener('click', () => {
+// מחברים את אירוע הלחיצה ללא תנאי מוקדם
+const startBtn = document.getElementById('start-btn');
+if (startBtn) {
+    startBtn.addEventListener('click', () => {
+        // בודקים בזמן הלחיצה האם המשתמש הוא המארח כרגע
+        if (IS_HOST) {
             socket.emit('start_game_request', { room_code: ROOM_CODE });
-        });
-    }
+        }
+    });
 }
 
 document.getElementById('leave-btn').addEventListener('click', () => {
@@ -81,7 +95,7 @@ socket.on('game_started', () => {
 
 //אם נשאר רק שחקן אחד, הפונקציה מעיפה אותו מהמשחק
 socket.on('game_aborted', (data) => {
-    if (currentTimer) clearInterval(currentTimer);
+    //if (currentTimer) clearInterval(currentTimer);
     alert("The other players left the room. " + data.message);
     window.location.href = '/quiz_lobby'; // לזרוק אותו חזרה ללובי
 });

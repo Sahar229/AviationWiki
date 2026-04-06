@@ -1,8 +1,9 @@
 import socket
 import threading
+import ssl
 from database.protocol import *
 from database.db_manager import *
-from config import DBConfig
+from config import DBConfig, ServerConfig
 from utils.logger import logger
 
 class DatabaseServer:
@@ -14,6 +15,8 @@ class DatabaseServer:
         self._ip = ip
         self._port = port
         self._db = DatabaseManager()
+        self._context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        self._context.load_cert_chain(certfile=ServerConfig.CERT_FILE, keyfile=ServerConfig.KEY_FILE)
 
     def _process_login(self, client_socket: socket.socket, params) -> None:
         """
@@ -152,5 +155,10 @@ class DatabaseServer:
         
         while True:
             client_socket, client_address = server.accept()
-            client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
-            client_thread.start()
+            try:
+                secure_client_socket = self._context.wrap_socket(client_socket, server_side=True)
+                client_thread = threading.Thread(target=self.handle_client, args=(secure_client_socket, client_address))
+                client_thread.start()
+            except:
+                logger.exception("|db_server.py| TLS Handshake failed")
+                client_socket.close()

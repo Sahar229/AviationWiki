@@ -1,10 +1,12 @@
+import os
+
 from flask import Flask
 from flask_socketio import SocketIO
+
 from game.models import RoomManager
 from database.db_client import DatabaseClient
 from config import ServerConfig
 from config import DBConfig
-import os
 from utils.logger import logger
 
 

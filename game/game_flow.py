@@ -1,5 +1,5 @@
-from globals import socketio, game_manager, db_req
 from config import GameRules
+from globals import socketio, game_manager, db_req
 from utils.logger import logger
 
 

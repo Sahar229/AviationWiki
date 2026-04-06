@@ -1,10 +1,12 @@
+import threading
+
+import app.routes as routes
+import app.socket_events as socket_events
 from globals import app, socketio
 from config import ServerConfig
 from database.db_server import DatabaseServer
-import app.routes as routes
-import app.socket_events as socket_events
-import threading
 from utils.logger import logger
+
 
 def start_database_server():
     """
@@ -14,10 +16,11 @@ def start_database_server():
     db_ser.start_server()
     logger.info("|run.py| Starting DB Server thread")
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     db_thread = threading.Thread(target=start_database_server, daemon=True)
     db_thread.start()
+    
     # הפעלת שרת
     socketio.run(app, 
                  debug=True, 

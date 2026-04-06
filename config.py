@@ -22,7 +22,7 @@ class GameRules:
     QUESTION_TIMER = 15
     ROUND_TRANSITION_DELAY = 2
     GAME_START_DELAY = 2
-    REFRESH_DELAY = 1.5
+    REFRESH_DELAY = 0.5
     
     # ניקוד
     BASE_POINTS = 100

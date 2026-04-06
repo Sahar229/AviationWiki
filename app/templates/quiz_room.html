@@ -57,13 +57,11 @@
         <ul class="players-list" id="players-list">
             </ul>
 
-        {% if is_host %}
-            <button class="start-btn" id="start-btn">🚀 Start Game</button>
-            <button class="leave-btn" id="leave-btn">Leave Room</button>
-        {% else %}
-            <p class="waiting-text">Waiting for host to start the game...</p>
-            <button id="leave-btn" class="leave-btn">Leave Room</button>
-        {% endif %}
+        <p class="waiting-text">Waiting for host to start the game...</p>
+        <button class="start-btn"
+            style="display: {% if is_host %}inline-block{% else %}none{% endif %};" 
+            id="start-btn">🚀 Start Game</button>
+        <button class="leave-btn" id="leave-btn">Leave Room</button>
     </div>
 
     <!-- Playing View -->
@@ -125,7 +123,7 @@
 
     <script>
         const ROOM_CODE = "{{ room_code }}";
-        const IS_HOST = "{{ is_host }}" === "True";
+        let IS_HOST = "{{ is_host }}" === "True";
         const MY_USERNAME = "{{ session['username'] }}";
     </script>
     
