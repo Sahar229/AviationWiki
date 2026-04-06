@@ -39,6 +39,7 @@ class ProtocolTools:
             logger.exception(f"|protocol.py| Error sending message")
             return False
 
+
     @classmethod
     def receive_message(cls, sock: socket.socket):
         """
@@ -47,6 +48,7 @@ class ProtocolTools:
         מחזירה טאפל של (פקודה, פרמטרים). במקרה של שגיאה או ניתוק, מחזירה כלום
         """
         try:
+            
             # קריאת ההדר
             header = b""
             while len(header) < cls.HEADER_LENGTH:
@@ -72,3 +74,4 @@ class ProtocolTools:
         except Exception as e:
             logger.exception("|protocol.py| Error receiving a message")
             return None, None
+        

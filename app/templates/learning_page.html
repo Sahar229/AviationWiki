@@ -273,11 +273,11 @@
 
 <body>
     <nav class="top-nav">
-        <a href="{{ url_for('home') }}" class="nav-btn" aria-label="Home">
+        <a href="{{ url_for('main.home') }}" class="nav-btn" aria-label="Home">
             <span class="material-symbols-outlined">home</span>
         </a>
         
-        <a href="{{ url_for('home') }}" class="nav-title">Aviation Wiki</a>
+        <a href="{{ url_for('main.home') }}" class="nav-title">Aviation Wiki</a>
 
         <div class="right-nav-group">
             <div class="search-container">
@@ -290,9 +290,9 @@
                     <span style="color: #0f4c81; font-weight: 700; font-size: 1.1rem;">
                         Hello, {{ session['username'] }}
                     </span>
-                    <a href="{{ url_for('logout') }}" class="nav-btn" style="border-color: #d9534f; color: #d9534f; padding: 6px 15px;">Logout</a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-btn" style="border-color: #d9534f; color: #d9534f; padding: 6px 15px;">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('login_page') }}" class="login-btn">Login / Register</a>
+                    <a href="{{ url_for('auth.login_page') }}" class="login-btn">Login / Register</a>
                 {% endif %}
             </div>
         </div>

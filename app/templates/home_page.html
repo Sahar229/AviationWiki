@@ -110,16 +110,16 @@
                 <span style="color: #0f4c81; font-weight: 700; font-size: 1.1rem;">
                     Hello, {{ session['username'] }}
                 </span>
-                <a href="{{ url_for('logout') }}" class="nav-btn" style="border-color: #d9534f; color: #d9534f; padding: 6px 15px;">Logout</a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-btn" style="border-color: #d9534f; color: #d9534f; padding: 6px 15px;">Logout</a>
             {% else %}
-                <a href="{{ url_for('login_page') }}" class="login-btn">Login / Register</a>
+                <a href="{{ url_for('auth.login_page') }}" class="login-btn">Login / Register</a>
             {% endif %}
         </div>
     </nav>
 
     <div class="container">
-        <a href="{{ url_for('learning_page') }}" class="card-button">Learning Area</a>
-        <a href="{{ url_for('quiz_lobby') }}" class="card-button">Quiz Area</a>
+        <a href="{{ url_for('main.learning_page') }}" class="card-button">Learning Area</a>
+        <a href="{{ url_for('main.quiz_lobby') }}" class="card-button">Quiz Area</a>
     </div>
 
 </body>

@@ -1,39 +1,7 @@
-import string, random, time
+import time
 from config import GameRules
 from utils.logger import logger
-
-class Question:
-    """
-    מחלקה שמייצגת שאלה בחידון
-    """
-    def __init__(self, question_text : str, option1 : str, option2 : str, option3 : str, option4 : str, correct_option_number : int):
-        self._question_text = question_text
-        self._options = [option1, option2, option3, option4]
-        self._correct_option_number = correct_option_number
-
-    def get_correct_answer_text(self) -> str:
-        return self._options[self._correct_option_number - 1]
-
-    @property
-    def question_text(self):
-        return self._question_text
-
-    def check_answer(self, option_number : int) -> bool:
-        """
-        בודקת האם התשובה נכונה
-        מקבלת קלט של אופציה בחירה מ1-4 
-        מחזירה אמת או שקר על הבדיקה
-        """
-        return int(option_number) == self._correct_option_number
-
-    def to_dict_client(self):
-        """
-        מחזירה שאלה בתור מילון המוכן לשליחה בסוקט והצגה
-        """
-        return {
-            "question_text": self._question_text,
-            "options": [{"id": i+1, "text": opt} for i, opt in enumerate(self._options)]
-        }
+from .question import Question
 
 class Room:
     """
@@ -58,7 +26,9 @@ class Room:
         self._round_answers = {}
         self._round_start_time = None
 
+
     #גטים וסטים
+    
     @property
     def code(self): return self._code
     
@@ -178,7 +148,6 @@ class Room:
             return self._host
         return None
 
-
     def add_player(self, player_name : str):
         """מנסה להוסיף שחקן לחדר. מחזיר אמת אם הצליח, אחרת מחזיר הודעת שגיאה."""
         if self._status != "waiting":
@@ -212,37 +181,4 @@ class Room:
             "num_questions": self._num_questions,
             "status": self._status
         }
-
-class RoomManager:
-    """
-    מחלקה האחראית על כל החדרים הפועלים
-    """
-    def __init__(self):
-        self._active_rooms = {}
-
-    def _generate_unique_code(self):
-        """מגריל קוד שעדיין לא קיים במערכת."""
-        while True:
-            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
-            if code not in self._active_rooms:
-                return code
-
-    def create_room(self, host_name : str, is_private : bool, max_players : int, num_questions=GameRules.DEFAULT_NUM_QUESTIONS) -> Room:
-        """
-        יוצרת חדר חדש ומוסיפה אותו לרשימת החדרים
-        """
-        code = self._generate_unique_code()
-        new_room = Room(code, host_name, is_private, max_players, num_questions)
-        self._active_rooms[code] = new_room
-        return new_room
-
-    def get_room(self, room_code):
-        return self._active_rooms.get(room_code)
-
-    def get_public_waiting_rooms(self):
-        """מחזיר מילון של כל החדרים הפומביים שממתינים לשחקנים."""
-        return {
-            code: room.to_dict()
-            for code, room in self._active_rooms.items()
-            if not room.is_private and room.status == "waiting"
-        }
+    

@@ -41,9 +41,15 @@
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: #004aad;
+            color: #0f4c81;
+            text-decoration: none;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            
+            /* אפשר להוסיף קצת ריווח כדי שהלוגו לא יידבק לגמרי לקצה המסך */
+            margin-left: 20px; 
         }
 
         .nav-btn {
@@ -308,13 +314,12 @@
 <body>
 
     <nav>
-        <div class="logo">Aviation Wiki</div>
+        <a href="{{ url_for('main.home') }}" class="logo">Aviation Wiki</a>
         <div>
             <span style="color: #0f4c81; font-weight: 700; margin-right: 15px;">
                 Hello, {{ session['username'] }}
             </span>
-            <a href="/" class="nav-btn" style="border-color: #004aad; color: #004aad; margin-right: 10px;">Home</a>
-            <a href="{{ url_for('logout') }}" class="nav-btn">Logout</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-btn">Logout</a>
         </div>
     </nav>
 

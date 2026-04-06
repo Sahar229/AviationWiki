@@ -94,6 +94,7 @@ def end_round(room_code, question_idx):
     except Exception as e:
         logger.exception("|game_flow.py| Error in ending the round")
 
+
 def end_game(room_code):
     """
     פונקציה שאחראית על סיום המשחק וסיכומו

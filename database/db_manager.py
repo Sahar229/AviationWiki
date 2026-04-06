@@ -1,5 +1,4 @@
 import sqlite3
-import hashlib
 import threading
 from utils.logger import logger
 
@@ -38,6 +37,7 @@ class DatabaseManager:
         מחזירה טאפל המכיל את אם נמצאה התאמה, או כלום אם לא.
         """
         user = None
+
         #ביצוע שאילתה
         with self._lock:
             conn = sqlite3.connect(self._db_name)
@@ -69,6 +69,7 @@ class DatabaseManager:
                 conn.commit()
                 response_data = {"status": "ok"}
                 logger.info(f"|db_manager.py| Created new user: {username}")
+
             #בדיקת שגיאות
             except sqlite3.IntegrityError as e:
                 error_message = str(e).lower()
@@ -85,7 +86,7 @@ class DatabaseManager:
                 response_data = {"status": "fail", "error": f"General error: {e}"}
                 logger.exception("|db_manager.py| Error in register")
             finally:
-                conn.close() # סגירה מבטיחה שה-DB לא יישאר נעול
+                conn.close()
                 
         return response_data
     
@@ -98,6 +99,7 @@ class DatabaseManager:
         with self._lock:
             conn = sqlite3.connect(self._db_name) # פתיחה בתוך הפונקציה
             cursor = conn.cursor()
+
             #הכנסת נתונים
             try:
                 win_increment = 1 if won else 0
@@ -132,6 +134,7 @@ class DatabaseManager:
                     WHERE id=?
                 """, (user_id,))
                 row = cursor.fetchone()
+
                 #סידור במילון
                 if row:
                     stats = {
@@ -144,3 +147,4 @@ class DatabaseManager:
             finally:
                 conn.close()
         return stats
+    

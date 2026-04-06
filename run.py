@@ -1,6 +1,5 @@
 import threading
 
-import app.routes as routes
 import app.socket_events as socket_events
 from globals import app, socketio
 from config import ServerConfig

@@ -1,10 +1,12 @@
 import socket
 import threading
 import ssl
+
 from database.protocol import *
 from database.db_manager import *
 from config import DBConfig, ServerConfig
 from utils.logger import logger
+
 
 class DatabaseServer:
     """
@@ -52,6 +54,7 @@ class DatabaseServer:
             password = params.get("password")
             
             response_data = self._db.register(username, email, password)
+
         finally:
           ProtocolTools.send_message(client_socket, "REGISTER_RESPONSE", response_data)
 
@@ -73,9 +76,10 @@ class DatabaseServer:
             else:
                 response_data = self._db.update_user_stats(username, won, correct_count)
                 
-        except Exception as e: # שיפור: תפיסת שגיאות ברמת השרת
+        except Exception as e:
             logger.exception(f"|db_server.py|Error in process_update_stats")
             response_data = {"status": "fail", "error": "Internal server error"}
+
         finally:
             ProtocolTools.send_message(client_socket, "UPDATE_STATS_RESPONSE", response_data)
 
@@ -89,6 +93,7 @@ class DatabaseServer:
         response_data = {}
         try:
             user_id = params.get("user_id")
+
             if user_id is None:
                 response_data = {"status": "fail", "error": "Missing user_id"}
             else:
@@ -146,6 +151,7 @@ class DatabaseServer:
         פותחת סוקט האזנה ומקבלת חיבורים חדשים בלולאה אינסופית. כל חיבור חדש נפתח ב-Thread משלו.
         מחזירה: כלום.
         """
+        
         #מעלה לאוויר את השרת
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((self._ip, self._port))
@@ -155,6 +161,7 @@ class DatabaseServer:
         
         while True:
             client_socket, client_address = server.accept()
+
             try:
                 secure_client_socket = self._context.wrap_socket(client_socket, server_side=True)
                 client_thread = threading.Thread(target=self.handle_client, args=(secure_client_socket, client_address))
@@ -162,3 +169,4 @@ class DatabaseServer:
             except:
                 logger.exception("|db_server.py| TLS Handshake failed")
                 client_socket.close()
+                

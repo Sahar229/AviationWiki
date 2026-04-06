@@ -33,3 +33,4 @@ class DatabaseClient:
         except Exception as e:
             logger.exception(f"|db_client.py| Database connection error")
             return None
+        
