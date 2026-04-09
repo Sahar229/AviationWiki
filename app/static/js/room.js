@@ -224,6 +224,17 @@ socket.on('game_over', (data) => {
         
         scoreboardList.appendChild(li);
     });
+    const myMistakes = data.errors[MY_USERNAME] || [];
+    const learnBtn = document.getElementById('learn-btn');
+    const mistakesInput = document.getElementById('mistakes-input');
+    
+    if (myMistakes.length > 0) {
+        // המרת מערך הטעויות למחרוזת JSON והכנסתו לשדה המוסתר בטופס
+        mistakesInput.value = JSON.stringify(myMistakes);
+        learnBtn.style.display = 'block'; // הצגת הכפתור
+    } else {
+        learnBtn.style.display = 'none'; // הסתרת הכפתור
+    }
 });
 
 // בניית תצוגת טבלת הניקוד המעודכנת על המסך ומיון השחקנים לפי הניקוד שלהם

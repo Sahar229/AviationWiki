@@ -129,7 +129,8 @@ def end_game(room_code):
         #הודעת סיום משחק
         socketio.emit('game_over', {
             'standings': [{"name": p, "score": s} for p, s in sorted_players],
-            'winners': winner_names
+            'winners': winner_names,
+            'errors': room.errors
         }, to=room_code)
     except Exception as e:
         logger.exception("|game_flow.py| Error in ending the game")

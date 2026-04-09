@@ -319,6 +319,7 @@
             <span style="color: #0f4c81; font-weight: 700; margin-right: 15px;">
                 Hello, {{ session['username'] }}
             </span>
+            <a href="/" class="nav-btn" style="border-color: #004aad; color: #004aad; margin-right: 10px;">Home</a>
             <a href="{{ url_for('auth.logout') }}" class="nav-btn">Logout</a>
         </div>
     </nav>

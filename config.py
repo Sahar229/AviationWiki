@@ -1,10 +1,16 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 class ServerConfig:
     """הגדרות שרת כלליות ואבטחה"""
-    SECRET_KEY = b'\xff}^\x06\x05/\x91\xb7\xb2\x86\xd3\xe0,e\xfe\xfb\x04\xb1\xec\n\xf1\\\x07Y'
+    SECRET_KEY = os.getenv("SECRET_KEY")
     PORT = 5000
     HOST = '0.0.0.0'
-    CERT_FILE = 'cert.pem'
-    KEY_FILE = 'key.pem'
+    CERT_FILE = os.getenv("CERT_PATH")
+    KEY_FILE = os.getenv("KEY_PATH")
 
 class DBConfig:
     """ הגדרות תקשורת בין השרת הראשי לשרת בסיס הנתונים"""
@@ -31,3 +37,7 @@ class GameRules:
 class UserConfig:
     """הגדרות משתמשים והרשמה"""
     MIN_PASSWORD_LENGTH = 6
+
+class APIConfig:
+    """הגדרות שימוש בAPI"""
+    API_KEY = os.getenv("GEMINI_API_KEY")

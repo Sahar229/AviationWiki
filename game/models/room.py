@@ -25,6 +25,7 @@ class Room:
         self._total_correct = {host_name: 0}
         self._round_answers = {}
         self._round_start_time = None
+        self._errors = {}
 
 
     #גטים וסטים
@@ -70,6 +71,9 @@ class Room:
 
     @property
     def round_start_time(self): return self._round_start_time
+
+    @property
+    def errors(self): return self._errors
 
 
     @status.setter
@@ -126,12 +130,12 @@ class Room:
         """מחזיר את כמות השחקנים שעדיין מחוברים למשחק"""
         return sum(1 for status in self._active_players_status.values() if status)
     
-    def set_player_inactive(self, player_name):
+    def set_player_inactive(self, player_name : str):
         """מסמן שחקן כלא פעיל במהלך משחק"""
         if player_name in self._active_players_status:
             self._active_players_status[player_name] = False
 
-    def remove_player_waiting(self, player_name):
+    def remove_player_waiting(self, player_name : str):
         """מוחק שחקן מהחדר (מיועד רק למצב המתנה). מחזיר אמת אם החדר התרוקן."""
         if player_name in self._players:
             self._players.remove(player_name)
@@ -147,6 +151,21 @@ class Room:
             self._host = self._players[0]
             return self._host
         return None
+    
+
+    def record_error(self, username : str, question_text : str, user_answer : str, correct_answer : str):
+        # אם זו הטעות הראשונה של המשתמש ניצור רשימה ריקה
+        if username not in self._errors:
+            self._errors[username] = []
+            
+        # נוסיף את הטעות החדשה לרשימה שלו
+        mistake = {
+            "question": question_text,
+            "user_answer": user_answer,
+            "correct_answer": correct_answer
+        }
+        self._errors[username].append(mistake)
+
 
     def add_player(self, player_name : str):
         """מנסה להוסיף שחקן לחדר. מחזיר אמת אם הצליח, אחרת מחזיר הודעת שגיאה."""

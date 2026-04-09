@@ -1,5 +1,6 @@
 # Security & Credentials
 *.pem
+certs/
 
 # Databases
 users.db
@@ -9,3 +10,6 @@ users.db
 
 #cache
 __pycache__/
+
+#env 
+.env

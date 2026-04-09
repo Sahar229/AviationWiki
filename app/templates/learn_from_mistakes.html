@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tutor - Aviation Wiki</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            background-image: url("{{ url_for('static', filename='images/home_background.avif') }}");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- NAVBAR --- */
+        nav {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f4c81;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        .nav-center {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #004aad;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .username {
+            color: #0f4c81;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #d9534f;
+            border: 2px solid #d9534f;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #d9534f;
+            color: white;
+        }
+
+        /* עיצוב חלון הצ'אט */
+        .chat-container {
+            width: 60%;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            height: 60vh;
+            direction: ltr; /* נניח שהצ'אט באנגלית/שמאל-לימין, אם תרצה עברית שנה ל-rtl */
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .user-msg {
+            background: #004aad;
+            color: white;
+            margin-left: auto; /* מצמיד לימין */
+            border-bottom-right-radius: 0;
+        }
+
+        .ai-msg {
+            background: #e0f7fa;
+            color: #333;
+            margin-right: auto; /* מצמיד לשמאל */
+            border-bottom-left-radius: 0;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            background: #fff;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            align-items: flex-end;
+        }
+
+        .chat-input-area textarea {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            min-height: 100px; /* גובה התחלתי מכובד */
+            resize: vertical; /* מאפשר לשחקן לגרור ולהגדיל את התיבה */
+            font-family: inherit; /* שומר על הפונט היפה של האתר שלך */
+            line-height: 1.4; /* מרווח נוח בין השורות בטקסט עצמו */
+        }
+        .chat-input-area textarea:focus {
+            outline: none;
+            border-color: #004aad;
+            box-shadow: 0 0 5px rgba(0, 74, 173, 0.2);
+        }
+
+        .chat-input-area button {
+            padding: 10px 20px;
+            background: #004aad;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            height: fit-content;
+        }
+
+        .chat-input-area button:hover {
+            background: #003080;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="{{ url_for('main.home') }}" class="logo">Aviation Wiki</a>
+
+        <div class="nav-center">
+            Learn from your mistakes
+        </div>
+
+        <div class="nav-right">
+            <span class="username">Hello, {{ session['username'] }}</span>
+            <a href="/" class="nav-btn" style="border-color: #004aad; color: #004aad; margin-right: 10px;">Home</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-btn">Logout</a>
+        </div>
+    </nav>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+            <div class="message ai-msg">
+                Hello {{ session.get('username') }}! I am your AI Aviation Tutor. I see you've finished the game, let's review your mistakes.
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <!-- <input type="text" id="chat-input" placeholder="Ask me to explain a mistake..." onkeypress="handleKeyPress(event)"> -->
+            <textarea id="chat-input" rows="4" placeholder="Ask me to explain a mistake..." onkeypress="handleKeyPress(event)"></textarea>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script> const serverMistakes = {{ mistakes | tojson }}; </script>
+    <script src="{{ url_for('static', filename='js/learn_from_mistakes.js') }}"></script>
+
+</body>
+
+</html>

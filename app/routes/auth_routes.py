@@ -35,16 +35,16 @@ def login_page() -> str:
 
                 session['user_id'] = response.get("user_id")
                 session['username'] = response.get("username")
-                logger.info(f"|routes.py| login of {response.get("username")} was completed")
+                logger.info(f"|auth_routes.py| login of {response.get("username")} was completed")
                 # ------------------------------------
                 return render_template("login_page.html", success=f"Login Completed Successfully! Welcome {response.get('username')}", redirect_url=url_for('main.home'))
             else:
-                logger.error("|routes.py| response from db server wasn't ok during login")
+                logger.error("|auth_routes.py| response from db server wasn't ok during login")
                 error_msg = response.get("error") if response else "Internal Communication Error, Try Again"
                 return render_template("login_page.html", error=error_msg)
         return render_template("login_page.html")
     except Exception as e:
-        logger.exception("|routes.py| Error in login")
+        logger.exception("|auth_routes.py| Error in login")
 
 
 @auth_bp.route("/logout")
@@ -58,7 +58,7 @@ def logout():
         session.clear() # מנקה את כל המידע מה-Session (מנתק את המשתמש)
         return redirect(url_for('main.home'))
     except Exception as e:
-        logger.exception("|routes.py| Error in logout")
+        logger.exception("|auth_routes.py| Error in logout")
 
         
 
@@ -88,28 +88,28 @@ def register_page() -> str:
                 
                 #בדיקת תשובה מהבסיס נתונים
                 if response and response.get("status") == "ok":
-                    logger.info(f"|routes.py| register was completed for {username}")
+                    logger.info(f"|auth_routes.py| register was completed for {username}")
                     return render_template("register_page.html", success="Register Complteted Successfully!", redirect_url=url_for('auth.login_page'))
                 
                 else:
                     error_msg = response.get("error") if response else "Internal Server Problem"
-                    logger.error(f"|routes.py| error while registering in the db for {username}")
+                    logger.error(f"|auth_routes.py| error while registering in the db for {username}")
                     return render_template("register_page.html", error=error_msg)
                 
             elif password != password2:
                 error_msg = "Passwords Not Matching"
-                logger.warning(f"|routes.py| Registration failed for '{username}': Passwords Not Matching")
+                logger.warning(f"|auth_routes.py| Registration failed for '{username}': Passwords Not Matching")
                 return render_template("register_page.html", error=error_msg)
             
             elif len(password) < UserConfig.MIN_PASSWORD_LENGTH:
                 error_msg = f"Password Must Be At Least {UserConfig.MIN_PASSWORD_LENGTH} Characters"
-                logger.warning(f"|routes.py| Registration failed for '{username}': Password less than {UserConfig.MIN_PASSWORD_LENGTH} characters")
+                logger.warning(f"|auth_routes.py| Registration failed for '{username}': Password less than {UserConfig.MIN_PASSWORD_LENGTH} characters")
                 return render_template("register_page.html", error=error_msg)
             
             else:
                 error_msg = "Internal Server Problem"
-                logger.error("|routes.py| error while registering!")
+                logger.error("|auth_routes.py| error while registering!")
                 return render_template("register_page.html", error=error_msg)
         return render_template("register_page.html")
     except Exception as e:
-        logger.exception(f"|routes.py| Error in register")
+        logger.exception(f"|auth_routes.py| Error in register")

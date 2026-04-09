@@ -272,7 +272,11 @@ def handle_submit_answer(data):
         q = room.questions[room.current_question_idx]
         is_correct = q.check_answer(answer_idx)
         room.register_answer(username,answer_idx)
-        
+
+        #רישום טעויות
+        if not is_correct:
+            room.record_error(username, q.question_text, q.to_dict_client()["options"][answer_idx - 1]["text"],q.get_correct_answer_text())
+
         #מערכת נקודות
         points_awarded = 0
         if is_correct:

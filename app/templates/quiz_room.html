@@ -40,11 +40,24 @@
             font-weight: bold;
             transition: background 0.3s;
         }
-
         .leave-btn:hover {
             background-color: #c82333;
             transform: scale(1.05);
         }
+
+        .learn-btn { 
+            background-color: #2837a7; 
+            color: white; 
+            border: none; 
+            display: block; /* הופך את הכפתור לבלוק כדי שנוכל למרכז אותו */
+            margin: 0 auto 20px auto; /* 20 פיקסלים מלמעלה, ואוטומטי (ממורכז) בשאר הצדדים */
+            padding: 15px 30px;
+            font-size: 1.2em; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        .learn-btn:hover { background-color: #0d1b81; }
     </style>
 </head>
 <body>
@@ -118,6 +131,10 @@
         </div>
         
         <button class="start-btn" onclick="window.location.href='/quiz_lobby'">🏠 Return to Lobby</button>
+        <form id="mistakes-form" action="/learn_from_mistakes" method="POST">
+            <input type="hidden" name="mistakes" id="mistakes-input">
+            <button type="submit" class="learn-btn" id="learn-btn" style="display: none;">🔎 Learn From Your Mistakes</button>
+        </form>
     </div>
 
 
