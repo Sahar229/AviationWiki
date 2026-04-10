@@ -1,0 +1,175 @@
+nav {
+    background: transparent;
+    box-shadow: none;
+}
+
+/* --- SEARCH BAR STYLES --- */
+.search-container {
+    position: relative; /* Essential for positioning the dropdown */
+}
+
+#search-input {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 8px 15px;
+    border-radius: 20px;
+    outline: none;
+    width: 200px;
+    color: #0f4c81;
+    font-weight: 600;
+    transition: width 0.3s;
+}
+
+#search-input:focus {
+    background: rgba(255, 255, 255, 0.9);
+    width: 240px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.search-dropdown {
+    position: absolute;
+    top: 110%; /* Just below the input */
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+    display: none; /* Hidden by default */
+    z-index: 200;
+}
+
+.search-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+}
+
+.search-option:hover {
+    background: #e0f2fe; /* Light blue highlight */
+}
+
+.no-results {
+    padding: 10px 15px;
+    color: #777;
+    font-style: italic;
+    font-size: 0.9rem;
+    cursor: default;
+}
+
+/* --- LAYOUT --- */
+.main-stage {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 98vw;
+    max-width: none;
+    height: 65%; 
+    position: relative;
+    margin-bottom: 1rem;
+    gap: 40px;
+}
+
+/* --- GLASS CARDS --- */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 2rem;
+    width: 33%;
+    height: 80%;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    justify-content: flex-start; /* Changed to flex-start for scrolling */
+}
+
+.history-image-box {
+    margin-top: 15px;       
+    width: 100%;            
+    height: 180px;          
+    border-radius: 12px;    
+    overflow: hidden;       
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    flex-shrink: 0;         
+}
+
+.history-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;  
+}
+
+.data-list p {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+h2 { color: #0f4c81; margin-bottom: 1rem; font-size: 1.5rem; }
+
+/* --- HERO SECTION --- */
+.hero-section {
+    width: 48%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+}
+
+.sketchfab-embed-wrapper {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
+}
+
+iframe { width: 100%; height: 100%; border: none; }
+
+/* --- BOTTOM NAV --- */
+.nav-dock {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    max-width: 90%;
+    overflow-x: auto;
+}
+
+.thumbnail {
+    width: 70px;
+    height: 70px;
+    min-width: 70px;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    border: 2px solid transparent;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.thumbnail img { width: 100%; }
+
+.thumbnail.active {
+    border-color: #0f4c81;
+    transform: scale(1.1);
+}

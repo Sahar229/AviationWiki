@@ -1,0 +1,198 @@
+/* GENERAL RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Genral Body Settings */
+body {
+    height: 100vh; 
+    width: 100%;
+    
+    background-image: url("../images/home_background.avif");
+    
+    /* background logic */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.home-body {
+    display: block;
+}
+
+.learning-body {
+    background-image: none;
+    background: radial-gradient(circle at center, #e0f2fe 0%, #bae6fd 40%, #7dd3fc 100%);
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    gap: 40px;
+}
+
+.auth-body {
+    align-items: center;
+    justify-content: center;
+}
+
+/* navigation bar */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background: rgba(255, 255, 255, 0.9); /* רקע לבן חצי שקוף */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* צללית קלה */
+    width: 100%; /* מוודא שהסרגל תופס את כל הרוחב */
+}
+
+.nav-transparent {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #004aad; 
+    text-decoration: none; 
+    text-shadow: 0 2px 4px rgba(255,255,255,0.5); 
+    cursor: pointer; 
+    transition: opacity 0.3s ease; 
+}
+
+/* --- NAV RIGHT CONTAINER --- */
+/* קיבצתי פה גם את auth-buttons וגם את nav-right כדי ששניהם יתנהגו בדיוק אותו דבר */
+.auth-buttons {
+    display: flex;
+    align-items: center; /* מוודא שהטקסט והכפתורים יושבים בדיוק באותו קו גובה */
+    gap: 15px;
+}
+
+/* --- LOGIN BUTTON --- */
+.login-btn {
+    background-color: #222;
+    color: white;
+    text-decoration: none;
+    padding: 8px 20px; /* קצת יותר הדוק כדי שיישב יפה בסרגל הניווט */
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 2px solid #222; /* הוספתי גבול באותו צבע למקרה שנרצה כפתורים חלולים בהמשך */
+    transition: all 0.3s ease; /* אנימציה חלקה לכל שינוי */
+}
+
+/* אפקט הריחוף של הכפתור */
+.login-btn:hover {
+    background-color: #444; /* נהיה קצת יותר בהיר כשעוברים עליו */
+    border-color: #444;
+    transform: translateY(-2px); /* קופץ מילימטר למעלה לתחושת לחיצה */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* מקבל צללית עדינה */
+}
+
+/* --- BASE NAV BUTTON (Glassmorphism) --- */
+.nav-btn {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px); /* תאימות לדפדפני ספארי */
+    border: 1px solid rgb(15, 76, 129,0.6);
+    border-radius: 30px;
+    /* border-color: rgb(15, 76, 129,0.5); */
+    padding: 8px 20px;
+    text-decoration: none;
+    color: #0f4c81; /* הצבע הכחול הרגיל */
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    
+    /* מוודא שטקסט או איקונים בפנים יהיו ממורכזים */
+    display: inline-flex; 
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* אפקט ריחוף בסיסי לכל הכפתורים - הופך ללבן וקופץ מעט */
+.nav-btn:hover {
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* --- LOGOUT MODIFIER --- */
+/* דורס את הצבעים של כפתור ההתנתקות כדי שיהיה אדום */
+.logout-btn {
+    color: #d9534f;
+    border-color: rgba(217, 83, 79, 0.6); /* גבול אדום חצי שקוף */
+}
+
+/* כשהעכבר על ההתנתקות - הרקע נצבע באדום מלא והטקסט בלבן */
+.logout-btn:hover {
+    background: #d9534f;
+    color: white;
+    border-color: #d9534f;
+}
+
+.username {
+    color: #0f4c81;
+    font-weight: 700;
+    font-size: 1.3rem;
+    padding: 6px 15px;
+}
+
+.center-absolute {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap; /* מונע מהלוגו להישבר לשתי שורות */
+}
+
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+.auth-card h2 { margin-bottom: 25px; color: #333; font-size: 2rem; }
+.form-group { margin-bottom: 15px; text-align: left; }
+.form-group label { display: block; margin-bottom: 5px; color: #666; font-weight: 600; }
+.form-group input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; }
+.form-group input:focus { border-color: #89c4f4; outline: none; }
+.submit-btn {
+    width: 100%; padding: 12px;
+    background: linear-gradient(180deg, #ffffff 20%, #89c4f4 100%);
+    border: none; border-radius: 15px;
+    color: #222; font-weight: 700; font-size: 1.1rem; cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 76, 175, 0.2); margin-top: 10px;
+    transition: transform 0.2s;
+}
+.submit-btn:hover { transform: translateY(-3px); }
+.links { margin-top: 20px; font-size: 0.9rem; }
+.links a { color: #0056b3; text-decoration: none; font-weight: 600; }
+
+.alert {
+    padding: 10px;
+    border-radius: 8px;
+    margin: 15px;
+    font-weight: bold;
+}
+
+.alert-error {
+    color: #d9534f;
+    background-color: #f2dede;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+}

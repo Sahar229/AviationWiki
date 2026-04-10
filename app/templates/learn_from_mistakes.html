@@ -6,76 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Tutor - Aviation Wiki</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        body {
-            height: 100vh;
-            width: 100vw;
-            background-image: url("{{ url_for('static', filename='images/home_background.avif') }}");
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- NAVBAR --- */
-        nav {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #0f4c81;
-            text-decoration: none;
-            margin-left: 20px;
-        }
 
         .nav-center {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #004aad;
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .username {
-            color: #0f4c81;
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        .nav-btn {
-            text-decoration: none;
-            color: #d9534f;
-            border: 2px solid #d9534f;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-
-        .nav-btn:hover {
-            background: #d9534f;
-            color: white;
+            color: #5c00ad;
         }
 
         /* עיצוב חלון הצ'אט */
@@ -172,14 +111,14 @@
     <nav>
         <a href="{{ url_for('main.home') }}" class="logo">Aviation Wiki</a>
 
-        <div class="nav-center">
+        <div class="nav-center center-absolute">
             Learn from your mistakes
         </div>
 
-        <div class="nav-right">
+        <div class="auth-buttons">
             <span class="username">Hello, {{ session['username'] }}</span>
-            <a href="/" class="nav-btn" style="border-color: #004aad; color: #004aad; margin-right: 10px;">Home</a>
-            <a href="{{ url_for('auth.logout') }}" class="nav-btn">Logout</a>
+            <a href="/" class="nav-btn">Home</a>
+            <a href="{{ url_for('auth.logout') }}" class="nav-btn logout-btn">Logout</a>
         </div>
     </nav>
     <div class="chat-container">

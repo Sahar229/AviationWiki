@@ -6,66 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Lobby - Aviation Wiki</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz_lobby.css') }}">
 
     <style>
-        /* --- איפוס ועיצוב כללי --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        body {
-            height: 100vh;
-            width: 100vw;
-            background-image: url("{{ url_for('static', filename='images/home_background.avif') }}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* --- ניווט (Navbar) --- */
-        nav {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 15px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #0f4c81;
-            text-decoration: none;
-            cursor: pointer;
-            transition: opacity 0.3s;
-            
-            /* אפשר להוסיף קצת ריווח כדי שהלוגו לא יידבק לגמרי לקצה המסך */
-            margin-left: 20px; 
-        }
-
-        .nav-btn {
-            text-decoration: none;
-            color: #d9534f;
-            border: 2px solid #d9534f;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .nav-btn:hover {
-            background: #d9534f;
-            color: white;
-        }
 
         /* --- פריסת הלובי --- */
         .lobby-container {
@@ -314,13 +260,13 @@
 <body>
 
     <nav>
-        <a href="{{ url_for('main.home') }}" class="logo">Aviation Wiki</a>
-        <div>
-            <span style="color: #0f4c81; font-weight: 700; margin-right: 15px;">
-                Hello, {{ session['username'] }}
-            </span>
-            <a href="/" class="nav-btn" style="border-color: #004aad; color: #004aad; margin-right: 10px;">Home</a>
-            <a href="{{ url_for('auth.logout') }}" class="nav-btn">Logout</a>
+        <a href="{{ url_for('main.home') }}" class="nav-btn" aria-label="Home">
+            <span class="material-symbols-outlined">home</span>
+        </a>
+        <a href="{{ url_for('main.home') }}" class="logo center-absolute">Aviation Wiki</a>
+        <div class="auth-buttons">
+            <span class="username">Hello, {{ session['username'] }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="nav-btn logout-btn">Logout</a>
         </div>
     </nav>
 

@@ -5,62 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aviation Wiki</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
     <style>
-        /* 1. GENERAL RESET */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        /* 2. BACKGROUND IMAGE SETUP */
-        body {
-            /* This ensures the image covers the whole screen */
-            height: 100vh; 
-            width: 100%;
-            
-            background-image: url("{{ url_for('static', filename='images/home_background.avif') }}");
-            
-            /* These lines are crucial for the background logic */
-            background-size: cover;     /* Scales image to fill container */
-            background-position: center; /* Centers the image */
-            background-repeat: no-repeat; /* Prevents tiling */
-            
-            /* Optional: Adds a slight blur/overlay effect logic if you wanted */
-            overflow: hidden; 
-        }
-
-        /* 3. NAVIGATION BAR (Header) */
-        nav {
-            display: flex;
-            justify-content: space-between; /* Pushes items to edges */
-            align-items: center;
-            padding: 20px 40px;
-        }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #004aad; /* The dark blue text color */
-            text-shadow: 0 2px 4px rgba(255,255,255,0.5); /* Helps text pop against background */
-        }
-
-        .login-btn {
-            background-color: #222;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 15px;
-        }
 
         /* 4. MAIN CONTENT (Centering the buttons) */
         .container {
@@ -101,16 +48,14 @@
 
     </style>
 </head>
-<body>
+<body class="home-body">
 
-    <nav>
+    <nav class="nav-transparent">
         <div class="logo">Aviation Wiki</div>
-        <div class="auth-buttons" style="display: flex; align-items: center; gap: 15px;">
+        <div class="auth-buttons">
             {% if 'username' in session %}
-                <span style="color: #0f4c81; font-weight: 700; font-size: 1.1rem;">
-                    Hello, {{ session['username'] }}
-                </span>
-                <a href="{{ url_for('auth.logout') }}" class="nav-btn" style="border-color: #d9534f; color: #d9534f; padding: 6px 15px;">Logout</a>
+                <span class="username">Hello, {{ session['username'] }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="nav-btn logout-btn">Logout</a>
             {% else %}
                 <a href="{{ url_for('auth.login_page') }}" class="login-btn">Login / Register</a>
             {% endif %}

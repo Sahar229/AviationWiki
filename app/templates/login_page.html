@@ -5,104 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Aviation Wiki</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <style>
-        /* איפוס ועיצוב בסיסי תואם לדף הבית */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-
-        body {
-            height: 100vh;
-            width: 100%;
-            background-image: url("{{ url_for('static', filename='images/home_background.avif') }}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* עיצוב כרטיס ההתחברות */
-        .auth-card {
-            background: rgba(255, 255, 255, 0.95); /* לבן עם שקיפות קלה */
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .auth-card h2 {
-            margin-bottom: 25px;
-            color: #333;
-            font-size: 2rem;
-        }
-
-        /* עיצוב השדות */
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #666;
-            font-weight: 600;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            border-color: #89c4f4; /* הצבע הכחול מהעיצוב שלך */
-            outline: none;
-        }
-
-        /* כפתור בהשראת דף הבית */
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(180deg, #ffffff 20%, #89c4f4 100%);
-            border: none;
-            border-radius: 15px;
-            color: #222;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 76, 175, 0.2);
-            transition: transform 0.2s;
-            margin-top: 10px;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 74, 173, 0.3);
-        }
-
-        .links {
-            margin-top: 20px;
-            font-size: 0.9rem;
-        }
-
-        .links a {
-            color: #0056b3;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .links a:hover { text-decoration: underline; }
-    </style>
 </head>
-<body>
+<body class="auth-body">
 
     <div class="auth-card">
         <h2>Login Page</h2>
@@ -121,13 +27,13 @@
         </form>
         
         {% if error %}
-            <div style="color: #d9534f; background-color: #f2dede; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;">
+            <div class="alert alert-error">
                 {{ error }}
             </div>
         {% endif %}
         
         {% if success %}
-            <div style="color: #3c763d; background-color: #dff0d8; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;">
+            <div class="alert alert-success">
                 {{ success }}
             </div>
             <script>
