@@ -9,7 +9,7 @@
     
     <style>
 
-        /* 4. MAIN CONTENT (Centering the buttons) */
+        /* מסך כפתורים */
         .container {
             display: flex;
             height: 80%; /* Takes up rest of the screen height */
@@ -18,7 +18,7 @@
             gap: 40px; /* Space between the two buttons */
         }
 
-        /* 5. THE CUSTOM BUTTON DESIGN */
+        /* עיצוב כפתורים */
         .card-button {
             display: flex;
             justify-content: center;
@@ -30,17 +30,13 @@
             font-weight: 700;
             font-size: 1.2rem;
             
-            /* THE GRADIENT TRICK */
-            /* This creates the white-to-blue fade */
             background: linear-gradient(180deg, #ffffff 20%, #89c4f4 100%);
             
-            /* Styling to match the image */
-            border-radius: 20px; /* Rounded corners */
-            box-shadow: 0 10px 25px rgba(0, 76, 175, 0.3); /* The soft shadow */
-            transition: transform 0.2s ease; /* Smooth animation on hover */
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0, 76, 175, 0.3); 
+            transition: transform 0.2s ease; 
         }
 
-        /* Hover effect - makes the button pop up slightly */
         .card-button:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(0, 74, 173, 0.5);

@@ -1,4 +1,4 @@
-// ניהול ממשק המשתמש להגדרת סוג החדר כפרטי או פומבי
+// ניהול הגדרות החדר
         let isPrivateRoom = false; 
 
         function setRoomType(type) {
@@ -17,7 +17,7 @@
         }
 
         // ==========================================
-        // --- תקשורת זמן אמת מול השרת (Socket.IO) ---
+        // חלק תקשורת זמן אמת
         // ==========================================
         
 // פתיחת חיבור לשרת הסוקט ובקשת נתונים ראשוניים בעת התחברות
@@ -42,7 +42,6 @@
 
         socket.on('room_joined', (data) => {
             console.log('Joined room successfully! Code:', data.room_code);
-            // עוברים פיזית לעמוד החדר
             window.location.href = '/room/' + data.room_code;
         });
         
@@ -50,20 +49,19 @@
             console.error("LOG SOCKET ERROR:", err);
         });
 
-        // 3. קבלת רשימת החדרים מהשרת וציור שלהם במסך
+  //        הצגת רשימת החדרים הפתוחים כל פעם
         socket.on('public_rooms_update', (rooms) => {
             const roomsListContainer = document.getElementById('public-rooms-list');
-            roomsListContainer.innerHTML = ''; // מנקה את הרשימה הקודמת
+            roomsListContainer.innerHTML = ''; 
 
             const roomCodes = Object.keys(rooms);
             
-            // אם אין חדרים פתוחים
+
             if (roomCodes.length === 0) {
                 roomsListContainer.innerHTML = '<div class="room-item" style="opacity: 0.8; text-align: center; display: block; font-weight: bold;">No public rooms available right now.</div>';
                 return;
             }
 
-            // יצירת קוביה לכל חדר פתוח
             roomCodes.forEach(code => {
                 const roomData = rooms[code];
                 const currentPlayers = roomData.players.length;
@@ -84,7 +82,7 @@
             });
         });
 
-//  איסוף נתוני התצורה מהטופס ושליחת פיילוד לשרת ליצירת חדר חדש
+        // יוצר חדר לאחר לחיצה
         document.addEventListener('DOMContentLoaded', () => {
             console.log("LOG: DOM fully loaded and parsed");
 
@@ -98,7 +96,7 @@
                 createBtn.addEventListener('click', (e) => {
                     console.log("LOG: Create button CLICKED!");
                     
-                    // בדיקת ערכים לפני שליחה
+
                     const maxPlayers = document.getElementById('max-players-select')?.value;
                     const numQuestions = document.getElementById('num-questions-select')?.value;
                     console.log("LOG: Max players selected:", maxPlayers);
@@ -116,7 +114,7 @@
             }
         });
 
-// קריאת קוד החדר מהקלט ושליחת בקשת הצטרפות בצורה ידנית
+        // הצטרפות לחדר פתוח כבר
         document.getElementById('join-room-btn').addEventListener('click', () => {
             const roomCode = document.getElementById('room-code-input').value.trim().toUpperCase();
             if (roomCode.length !== 4) {
@@ -126,7 +124,7 @@
             socket.emit('join_room_request', { room_code: roomCode });
         });
 
-// # פונקציית עזר להצטרפות לחדר פומבי דרך לחיצה על כפתור מהרשימה
+
         function joinSpecificRoom(code) {
             socket.emit('join_room_request', { room_code: code });
         }

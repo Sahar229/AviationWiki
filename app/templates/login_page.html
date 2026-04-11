@@ -25,7 +25,7 @@
 
             <button type="submit" class="submit-btn">Submit</button>
         </form>
-        
+        <!-- לוגיקת תשובה על הירשמות -->
         {% if error %}
             <div class="alert alert-error">
                 {{ error }}
@@ -39,7 +39,7 @@
             <script>
                 setTimeout(function() {
                     window.location.href = "{{ redirect_url }}";
-                }, 1500); // 1500 מילישניות = שניה וחצי
+                }, 1500);
             </script>
         {% endif %}
 

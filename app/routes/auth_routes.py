@@ -1,24 +1,18 @@
-import hashlib
 from flask import Blueprint, render_template, request, redirect, session, url_for 
 from globals import db_req
 from config import UserConfig
 from utils.logger import logger
-
+from utils.crypto_utils import hash_password
 
 auth_bp = Blueprint('auth', __name__)
 
 
-def hash_password(password: str) -> str:
-    """
-    פונקציית עזר להצפנת סיסמה. מקבלת סיסמה כטקסט גלוי ומחזירה אותה מוצפנת.
-    """
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 @auth_bp.route("/login", methods=['GET', 'POST'])
 def login_page() -> str:
     """
     נתיב לעמוד ההתחברות.
-    מטפל גם בהצגת טופס ההתחברות וגם בשליחת הנתונים לשרת ה-בסיס נתונים.
+    מטפל גם בהצגת טופס ההתחברות וגם בשליחת הנתונים לשרת בסיס נתונים.
     מחזיר: מחרוזת הטמל רונדר (עם או בלי הודעות שגיאה/הצלחה).
     """
     try:
@@ -36,7 +30,7 @@ def login_page() -> str:
                 session['user_id'] = response.get("user_id")
                 session['username'] = response.get("username")
                 logger.info(f"|auth_routes.py| login of {response.get("username")} was completed")
-                # ------------------------------------
+                
                 return render_template("login_page.html", success=f"Login Completed Successfully! Welcome {response.get('username')}", redirect_url=url_for('main.home'))
             else:
                 logger.error("|auth_routes.py| response from db server wasn't ok during login")
@@ -55,7 +49,7 @@ def logout():
    מחזירה: אובייקט הפניה של פלסק
     """
     try:
-        session.clear() # מנקה את כל המידע מה-Session (מנתק את המשתמש)
+        session.clear() # מנקה את כל המידע מהסשן
         return redirect(url_for('main.home'))
     except Exception as e:
         logger.exception("|auth_routes.py| Error in logout")

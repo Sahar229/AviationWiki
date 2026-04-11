@@ -15,8 +15,8 @@
             background-color: #28a745; 
             color: white; 
             border: none; 
-            display: block; /* הופך את הכפתור לבלוק כדי שנוכל למרכז אותו */
-            margin: 0 auto 20px auto; /* 20 פיקסלים מלמעלה, ואוטומטי (ממורכז) בשאר הצדדים */
+            display: block; 
+            margin: 0 auto 20px auto;
             padding: 15px 30px;
             font-size: 1.2em; 
             border-radius: 5px; 
@@ -31,7 +31,6 @@
             color: white;
             border: none;
             display: block;
-            /* מרכוז ללא רווח נוסף למטה */
             margin: 0 auto; 
             padding: 15px 30px;
             font-size: 1.2em;
@@ -49,8 +48,8 @@
             background-color: #2837a7; 
             color: white; 
             border: none; 
-            display: block; /* הופך את הכפתור לבלוק כדי שנוכל למרכז אותו */
-            margin: 0 auto 20px auto; /* 20 פיקסלים מלמעלה, ואוטומטי (ממורכז) בשאר הצדדים */
+            display: block; 
+            margin: 0 auto 20px auto;
             padding: 15px 30px;
             font-size: 1.2em; 
             border-radius: 5px; 
@@ -61,7 +60,7 @@
     </style>
 </head>
 <body>
-
+    <!-- מסך חדר המתנה -->
     <div class="room-container" id="waiting-view">
         <h2>Room Code:</h2>
         <h1>{{ room_code }}</h1>
@@ -77,10 +76,9 @@
         <button class="leave-btn" id="leave-btn">Leave Room</button>
     </div>
 
-    <!-- Playing View -->
+    <!-- מסך משחק -->
     <div id="playing-view" style="display: none; width: 90%; margin: auto; max-width: 1200px;">
         <div style="display: flex; gap: 20px;">
-            <!-- Left Side: Timer & Question -->
             <div style="flex: 2; background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 15px rgba(0,0,0,0.1);">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 id="q-number" style="color: #666; margin: 0;">Question 1/10</h2>
@@ -90,21 +88,18 @@
                 <h1 id="question-text" style="color: #004aad; margin-bottom: 30px; font-size: 2.2em;">Question goes here?</h1>
                 
                 <div id="options-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <!-- buttons generated dynamically -->
                 </div>
             </div>
 
-            <!-- Right Side: Scoreboard -->
             <div style="flex: 1; background: white; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 15px rgba(0,0,0,0.1); height: max-content;">
                 <h2 style="color: #004aad; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-top: 0;">🏆 Scoreboard</h2>
                 <ul id="live-scoreboard" style="list-style: none; padding: 0; text-align: left; font-size: 1.2em;">
-                    <!-- scoreboard list items -->
                 </ul>
             </div>
         </div>
     </div>
 
-    <!-- Feedback View -->
+    <!-- מסך סיכום שאלה -->
     <div id="feedback-view" class="room-container" style="display: none;">
         <h1 id="feedback-title" style="font-size: 4em; margin-bottom: 10px;">Correct!</h1>
         <h2 id="feedback-answer" style="color: #444;">The answer was: ...</h2>
@@ -113,14 +108,13 @@
         <div style="margin-top: 30px;">
             <h2 style="color: #004aad; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-top: 0;">🏆 Scoreboard</h2>
             <ul id="feedback-scoreboard" style="list-style: none; padding: 0; text-align: left; font-size: 1.2em;">
-                <!-- scoreboard list items -->
+
             </ul>
         </div>
     </div>
 
-    <!-- Final Results View -->
+    <!-- מסך סיכום משחק -->
     <div id="final-view" class="room-container" style="display: none; position: relative;">
-        <!-- Confetti wrapper logic could be here if wanted -->
         <h1 style="color: #004aad; font-size: 3em; margin-bottom: 10px;">Game Over!</h1>
         <h2 id="winner-display">Winner: <span id="winner-name" style="color: #28a745; font-size: 1.5em; text-decoration: underline;">Name</span></h2>
         

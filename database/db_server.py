@@ -5,6 +5,7 @@ import ssl
 from database.protocol import *
 from database.db_manager import *
 from config import DBConfig, ServerConfig
+from utils.crypto_utils import NetworkCipher
 from utils.logger import logger
 
 
@@ -20,7 +21,15 @@ class DatabaseServer:
         self._context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         self._context.load_cert_chain(certfile=ServerConfig.CERT_FILE, keyfile=ServerConfig.KEY_FILE)
 
-    def _process_login(self, client_socket: socket.socket, params) -> None:
+
+    def _send_response(self, client_socket: socket.socket, cmd : str, response_data : str, cipher : NetworkCipher):
+        """
+        מבצעת את השליחה עצמה של ההודעות לפי הפרוטוקול
+        """
+        logger.info("|db_server.py| sending encrypted response")
+        ProtocolTools.send_encrypted_message(client_socket, cmd, cipher, response_data)
+
+    def _process_login(self, client_socket: socket.socket, params, cipher) -> None:
         """
         פונקציה המעבדת בקשת התחברות.
         שולפת את הנתונים, מבצעת שאילתה מול בסיס הנתונים, ושולחת תשובה חזרה ללקוח.
@@ -39,9 +48,9 @@ class DatabaseServer:
                 response_data = {"status": "fail", "error": "Incorrect Email or Password"}
 
         finally:
-            ProtocolTools.send_message(client_socket, "LOGIN_RESPONSE", response_data)
+            self._send_response(client_socket, "LOGIN_RESPONSE", response_data, cipher)
     
-    def _process_register(self, client_socket: socket.socket, params) -> None:
+    def _process_register(self, client_socket: socket.socket, params, cipher) -> None:
         """
         פונקציה המעבדת בקשת הרשמה.
         מפעילה את מתודת הרישום בבסיס הנתונים ומחזירה את התוצאה ללקוח.
@@ -56,9 +65,9 @@ class DatabaseServer:
             response_data = self._db.register(username, email, password)
 
         finally:
-          ProtocolTools.send_message(client_socket, "REGISTER_RESPONSE", response_data)
+          self._send_response(client_socket, "REGISTER_RESPONSE", response_data, cipher)
 
-    def _process_update_stats(self, client_socket: socket.socket, params) -> None:
+    def _process_update_stats(self, client_socket: socket.socket, params, cipher) -> None:
         """
         פונקציה המעבדת בקשה לעדכון סטטים.
         מפעילה את מתודת עדכון הסטטים בבסיס הנתונים ומחזירה את התוצאה ללקוח.
@@ -81,10 +90,10 @@ class DatabaseServer:
             response_data = {"status": "fail", "error": "Internal server error"}
 
         finally:
-            ProtocolTools.send_message(client_socket, "UPDATE_STATS_RESPONSE", response_data)
+            self._send_response(client_socket, "UPDATE_STATS_RESPONSE", response_data, cipher)
 
 
-    def _process_get_stats(self, client_socket: socket.socket, params) -> None:
+    def _process_get_stats(self, client_socket: socket.socket, params, cipher) -> None:
         """
         פונקציה המקבלת בקשה לקבלת סטטים של משתמש.
         מקבלת מספר זיהוי של משתמש ומפעילה מתודת החזרת נתונים מבסיס הנתונים.
@@ -108,7 +117,7 @@ class DatabaseServer:
             logger.exception(f"|db_server.py| Error in process_get_stats")
             response_data = {"status": "fail", "error": "Internal server error"}
         finally:
-            ProtocolTools.send_message(client_socket, "GET_STATS_RESPONSE", response_data)
+            self._send_response(client_socket, "GET_STATS_RESPONSE", response_data, cipher)
     
 
 
@@ -120,25 +129,40 @@ class DatabaseServer:
         """
         try:
             while True:
-                #קבלת נתונים
-                command, params = ProtocolTools.receive_message(client_socket)
+                
+                #קבלת לחיצת יד מהלקוח
+                command, params1 = ProtocolTools.receive_message(client_socket)
                 if not command:
                     break
-        
+
+                if command == "DH_HANDSHAKE":
+                    client_pub_key = params1["pub_key"]
+                dh, my_pub_key = NetworkCipher.generate_dh_keys()
+                ProtocolTools.send_message(client_socket, "DH_HANDSHAKE_RESPONSE", {"pub_key": my_pub_key})
+
+                shared_key = NetworkCipher.compute_shared_key(dh, client_pub_key)
+                cipher = NetworkCipher(shared_key) 
+
+                #קבלת הודעה לאחר לחיצת יד
+                command, params = ProtocolTools.receive_encrypted_message(client_socket, cipher)
+                logger.info("|db_server.py| receiving encrypted message")
+
                 logger.info(f"|db_server.py| Received command: {command} from {client_address}")
 
+                if not command:
+                    break
                 #בדיקת פקודה ושליחה לפעולה המתאימה
                 if command == "LOGIN_REQUEST":
-                    self._process_login(client_socket, params)
+                    self._process_login(client_socket, params, cipher)
         
                 elif command == "REGISTER_REQUEST":
-                    self._process_register(client_socket, params) 
+                    self._process_register(client_socket, params, cipher) 
 
                 elif command == "UPDATE_STATS_REQUEST":
-                    self._process_update_stats(client_socket, params)
+                    self._process_update_stats(client_socket, params, cipher)
                 
                 elif command == "GET_STATS_REQUEST":
-                    self._process_get_stats(client_socket, params)
+                    self._process_get_stats(client_socket, params, cipher)
 
         except Exception as e:
             logger.exception("|db_server.py| Error handling client")

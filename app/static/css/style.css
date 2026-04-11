@@ -1,4 +1,4 @@
-/* GENERAL RESET */
+/* הגדרות גנריות */
 * {
     margin: 0;
     padding: 0;
@@ -6,14 +6,13 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Genral Body Settings */
+/* הגדרות באדי שונות */
 body {
     height: 100vh; 
     width: 100%;
     
     background-image: url("../images/home_background.avif");
     
-    /* background logic */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -41,7 +40,7 @@ body {
     justify-content: center;
 }
 
-/* navigation bar */
+/* הגדרות שורת נביגיישן */
 nav {
     display: flex;
     justify-content: space-between;
@@ -57,6 +56,7 @@ nav {
     box-shadow: none !important;
 }
 
+/* לוגו */
 .logo {
     font-size: 2rem;
     font-weight: 700;
@@ -67,72 +67,63 @@ nav {
     transition: opacity 0.3s ease; 
 }
 
-/* --- NAV RIGHT CONTAINER --- */
-/* קיבצתי פה גם את auth-buttons וגם את nav-right כדי ששניהם יתנהגו בדיוק אותו דבר */
+/* כפתור התחברות */
 .auth-buttons {
     display: flex;
-    align-items: center; /* מוודא שהטקסט והכפתורים יושבים בדיוק באותו קו גובה */
+    align-items: center; 
     gap: 15px;
 }
 
-/* --- LOGIN BUTTON --- */
 .login-btn {
     background-color: #222;
     color: white;
     text-decoration: none;
-    padding: 8px 20px; /* קצת יותר הדוק כדי שיישב יפה בסרגל הניווט */
+    padding: 8px 20px; 
     border-radius: 8px;
     font-size: 0.95rem;
     font-weight: 600;
-    border: 2px solid #222; /* הוספתי גבול באותו צבע למקרה שנרצה כפתורים חלולים בהמשך */
-    transition: all 0.3s ease; /* אנימציה חלקה לכל שינוי */
+    border: 2px solid #222; 
+    transition: all 0.3s ease;
 }
 
-/* אפקט הריחוף של הכפתור */
 .login-btn:hover {
-    background-color: #444; /* נהיה קצת יותר בהיר כשעוברים עליו */
+    background-color: #444; 
     border-color: #444;
-    transform: translateY(-2px); /* קופץ מילימטר למעלה לתחושת לחיצה */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* מקבל צללית עדינה */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* --- BASE NAV BUTTON (Glassmorphism) --- */
+/* כפתור בית */
 .nav-btn {
     background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px); /* תאימות לדפדפני ספארי */
+    -webkit-backdrop-filter: blur(5px); 
     border: 1px solid rgb(15, 76, 129,0.6);
     border-radius: 30px;
-    /* border-color: rgb(15, 76, 129,0.5); */
     padding: 8px 20px;
     text-decoration: none;
-    color: #0f4c81; /* הצבע הכחול הרגיל */
+    color: #0f4c81;
     font-weight: 600;
     font-size: 0.95rem;
     transition: all 0.3s ease;
     
-    /* מוודא שטקסט או איקונים בפנים יהיו ממורכזים */
     display: inline-flex; 
     align-items: center;
     justify-content: center;
     cursor: pointer;
 }
 
-/* אפקט ריחוף בסיסי לכל הכפתורים - הופך ללבן וקופץ מעט */
 .nav-btn:hover {
     background: #fff;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-
-/* --- LOGOUT MODIFIER --- */
-/* דורס את הצבעים של כפתור ההתנתקות כדי שיהיה אדום */
+/* לוגאאוט ושם */
 .logout-btn {
     color: #d9534f;
-    border-color: rgba(217, 83, 79, 0.6); /* גבול אדום חצי שקוף */
+    border-color: rgba(217, 83, 79, 0.6); 
 }
 
-/* כשהעכבר על ההתנתקות - הרקע נצבע באדום מלא והטקסט בלבן */
 .logout-btn:hover {
     background: #d9534f;
     color: white;
@@ -150,10 +141,10 @@ nav {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    white-space: nowrap; /* מונע מהלוגו להישבר לשתי שורות */
+    white-space: nowrap;
 }
 
-
+/* עיצוב של מסכי ההרשמה והתחברות */
 .auth-card {
     background: rgba(255, 255, 255, 0.95);
     padding: 40px;

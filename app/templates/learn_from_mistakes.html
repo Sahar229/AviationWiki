@@ -17,7 +17,7 @@
             color: #5c00ad;
         }
 
-        /* עיצוב חלון הצ'אט */
+        /* עיצוב חלון הצאט */
         .chat-container {
             width: 60%;
             margin: 40px auto;
@@ -27,7 +27,7 @@
             display: flex;
             flex-direction: column;
             height: 60vh;
-            direction: ltr; /* נניח שהצ'אט באנגלית/שמאל-לימין, אם תרצה עברית שנה ל-rtl */
+            direction: ltr;
         }
 
         .chat-messages {
@@ -50,14 +50,14 @@
         .user-msg {
             background: #004aad;
             color: white;
-            margin-left: auto; /* מצמיד לימין */
+            margin-left: auto;
             border-bottom-right-radius: 0;
         }
 
         .ai-msg {
             background: #e0f7fa;
             color: #333;
-            margin-right: auto; /* מצמיד לשמאל */
+            margin-right: auto;
             border-bottom-left-radius: 0;
         }
 
@@ -77,10 +77,10 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1rem;
-            min-height: 100px; /* גובה התחלתי מכובד */
-            resize: vertical; /* מאפשר לשחקן לגרור ולהגדיל את התיבה */
-            font-family: inherit; /* שומר על הפונט היפה של האתר שלך */
-            line-height: 1.4; /* מרווח נוח בין השורות בטקסט עצמו */
+            min-height: 100px; 
+            resize: vertical; 
+            font-family: inherit; 
+            line-height: 1.4;
         }
         .chat-input-area textarea:focus {
             outline: none;
@@ -121,6 +121,8 @@
             <a href="{{ url_for('auth.logout') }}" class="nav-btn logout-btn">Logout</a>
         </div>
     </nav>
+
+
     <div class="chat-container">
         <div class="chat-messages" id="chat-messages">
             <div class="message ai-msg">
@@ -128,7 +130,6 @@
             </div>
         </div>
         <div class="chat-input-area">
-            <!-- <input type="text" id="chat-input" placeholder="Ask me to explain a mistake..." onkeypress="handleKeyPress(event)"> -->
             <textarea id="chat-input" rows="4" placeholder="Ask me to explain a mistake..." onkeypress="handleKeyPress(event)"></textarea>
             <button onclick="sendMessage()">Send</button>
         </div>

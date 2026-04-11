@@ -3,9 +3,9 @@ nav {
     box-shadow: none;
 }
 
-/* --- SEARCH BAR STYLES --- */
+/* עיצוב בר חיפוש */
 .search-container {
-    position: relative; /* Essential for positioning the dropdown */
+    position: relative;
 }
 
 #search-input {
@@ -29,14 +29,14 @@ nav {
 
 .search-dropdown {
     position: absolute;
-    top: 110%; /* Just below the input */
+    top: 110%; 
     left: 0;
     width: 100%;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     overflow: hidden;
-    display: none; /* Hidden by default */
+    display: none; 
     z-index: 200;
 }
 
@@ -49,7 +49,7 @@ nav {
 }
 
 .search-option:hover {
-    background: #e0f2fe; /* Light blue highlight */
+    background: #e0f2fe;
 }
 
 .no-results {
@@ -60,7 +60,7 @@ nav {
     cursor: default;
 }
 
-/* --- LAYOUT --- */
+/* פריסה */
 .main-stage {
     display: flex;
     align-items: center;
@@ -73,7 +73,7 @@ nav {
     gap: 40px;
 }
 
-/* --- GLASS CARDS --- */
+/* קלפי הזכוכית של החלקים בלמידהנ */
 .glass-card {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
@@ -117,7 +117,7 @@ nav {
 
 h2 { color: #0f4c81; margin-bottom: 1rem; font-size: 1.5rem; }
 
-/* --- HERO SECTION --- */
+
 .hero-section {
     width: 48%;
     height: 100%;
@@ -138,7 +138,7 @@ h2 { color: #0f4c81; margin-bottom: 1rem; font-size: 1.5rem; }
 
 iframe { width: 100%; height: 100%; border: none; }
 
-/* --- BOTTOM NAV --- */
+/* קרוסלת מטוסים */
 .nav-dock {
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(10px);

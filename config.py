@@ -17,6 +17,7 @@ class DBConfig:
     HOST1 = '0.0.0.0'
     HOST2= '127.0.0.1'
     PORT = 5002
+    HEADER_LENGTH = 10
 
 class GameRules:
     """חוקי המשחק והחידון"""

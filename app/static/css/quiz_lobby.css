@@ -1,3 +1,5 @@
+
+/* עיצוב הלובי */
 .lobby-container {
     display: flex;
     justify-content: space-between;
@@ -25,7 +27,7 @@
     text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.8), -2px -2px 5px rgba(255, 255, 255, 0.8);
 }
 
-/* --- צד שמאל: רשימת חדרים --- */
+/* רשימת החדרים */
 .rooms-column {
     height: fit-content;
 }
@@ -77,11 +79,10 @@
     background: #0f4c81;
 }
 
-/* --- אמצע: פעולות --- */
+/* פעולות */
 .actions-column {
     align-items: center;
     gap: 30px;
-    /* קצת פחות רווח כי יש לנו יותר אלמנטים עכשיו */
 }
 
 /* אזור הגדרות יצירת חדר */
@@ -121,7 +122,7 @@
     cursor: pointer;
 }
 
-/* כפתורי ה-Toggle (Public/Private) */
+/* כפתורי הפאבליק פרייבט */
 .toggle-container {
     display: flex;
     gap: 10px;
@@ -140,13 +141,12 @@
     transition: all 0.3s ease;
 }
 
-/* המצב הדלוק (אור ירוק) */
+/* דלוק (אור ירוק) */
 .toggle-btn.active {
     border-color: #2ecc71;
     background: #eafaf1;
     color: #27ae60;
     box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
-    /* הילת האור הירוק */
 }
 
 .action-btn {
@@ -196,7 +196,7 @@
     box-shadow: 0 0 10px #89c4f4;
 }
 
-/* --- צד ימין: סטטיסטיקות --- */
+/*  סטטיסטיקות  */
 .stats-card {
     background: rgba(220, 224, 230, 0.95);
     border-radius: 0;

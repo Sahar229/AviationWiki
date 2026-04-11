@@ -5,6 +5,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 import datetime
+import secrets
+
 
 def generate_self_signed_cert():
     # 1. יצירת מפתח פרטי (Private Key)
@@ -55,5 +57,8 @@ def generate_self_signed_cert():
 
     print("Success! Created cert.pem and key.pem")
 
+def generate_secret_key():
+    print(secrets.token_hex())
+
 if __name__ == "__main__":
-    generate_self_signed_cert()
+    generate_secret_key()

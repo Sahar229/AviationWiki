@@ -37,6 +37,7 @@
             <button type="submit" class="submit-btn">Submit</button>
         </form>
         
+        <!-- לוגיקת תשובה מהשרת על הרשמה -->
         {% if error %}
             <div class="alert alert-error">
                 {{ error }}
@@ -64,7 +65,7 @@
     </div>
 
     <script>
-        // תופסים את האלמנטים מה-HTML
+        // תופסים את האלמנטים מההטמל
         const passwordInput = document.getElementById('password');
         const passwordHint = document.getElementById('password-hint');
 

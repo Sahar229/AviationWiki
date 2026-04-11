@@ -1,20 +1,13 @@
         let messageCounter = 0;
         
-        // הפונקציה הזו תרוץ אוטומטית ברגע שהעמוד מסיים להיטען
+            // עיצוב הודעת ברירת מחדל מוכנה לשליחה
         window.addEventListener('DOMContentLoaded', () => {
-            // משיכת אלמנט תיבת הטקסט (וודא שה-ID תואם למה שיש לך ב-HTML)
             const chatInput = document.getElementById('chat-input'); 
 
-            // בינתיים נשים פה נתונים פיקטיביים לבדיקה התצוגה.
-            // בהמשך נחליף את זה בנתונים האמיתיים שיגיעו מה-Flask (מהמשתנה room.errors)
             const mistakesData = serverMistakes || [];
 
-            // בודקים שיש בכלל טעויות לפני שמייצרים את ההודעה
             if (mistakesData.length > 0 && chatInput) {
-                // בניית ההקדמה של ההודעה (באנגלית, כי הגדרנו את המודל לדבר אנגלית)
                 let autoMessage = "Hi AI Tutor! I just finished my aviation quiz and made a few mistakes. Can you help me understand them?\n\n";
-                
-                // מעבר על כל הטעויות והוספתן לטקסט בצורה מסודרת
                 mistakesData.forEach((mistake, index) => {
                     autoMessage += `Mistake #${index + 1}:\n`;
                     autoMessage += `- Question: "${mistake.question}"\n`;
@@ -24,25 +17,23 @@
                 
                 autoMessage += "Please explain these concepts simply.";
                 
-                // השתלת הטקסט המוכן בתוך תיבת הקלט
                 chatInput.value = autoMessage;
             }
         });
-        
+        // עיצוב שליחת ההודעה והעברתה לAPI
         async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (!message) return;
 
-            // 1. הוספת הודעת המשתמש למסך
             appendMessage(message, 'user-msg');
-            input.value = ''; // ניקוי שורת הטקסט
+            input.value = ''; 
 
-            // 2. הוספת הודעת "חושב..." זמנית מצד ה-AI
+
             const loadingId = appendMessage("Thinking...", 'ai-msg');
 
             try {
-                // 3. שליחת ההודעה לנתיב ה-API שניצור בפייתון
+
                 const response = await fetch('/api/ask_ai', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -51,7 +42,7 @@
                 
                 const data = await response.json();
                 
-                // 4. החלפת הודעת ה"חושב..." בתשובה האמיתית מהשרת
+
                 document.getElementById(loadingId).innerHTML = marked.parse(data.answer) || "Error getting response.";
             } catch (e) {
                 console.error(e);
@@ -59,22 +50,22 @@
             }
         }
 
-        // פונקציית עזר להוספת בועת צ'אט למסך
+        // עיצוב הצגת ההודעה על המסך
         function appendMessage(text, className) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${className}`;
             msgDiv.innerText = text;
-            msgDiv.id = 'msg-' + messageCounter + '-'+  Date.now(); // יצירת ID ייחודי לטובת עדכון ההודעה מאוחר יותר
+            msgDiv.id = 'msg-' + messageCounter + '-'+  Date.now();
             messageCounter++;
 
             const container = document.getElementById('chat-messages');
             container.appendChild(msgDiv);
-            container.scrollTop = container.scrollHeight; // גלילה אוטומטית למטה
+            container.scrollTop = container.scrollHeight;
             
             return msgDiv.id;
         }
 
-        // מאפשר שליחה בעזרת מקש האנטר
+
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMessage();
