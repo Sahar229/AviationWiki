@@ -39,11 +39,16 @@ class DatabaseServer:
         try:
             email = params.get("email")
             password = params.get("password")
-            
+
             user = self._db.login(email,password)
             
             if user:
-                response_data = {"status": "ok", "user_id": user[0], "username": user[1]}           
+                id, is_online = user[0], user[2]
+                if is_online == 0:
+                    response_data = {"status": "ok", "user_id": id, "username": user[1]}   
+                    self._db.update_user_state(id, 1)
+                else:
+                    response_data = {"status": "fail", "error": "User is Already Connected"}  
             else:
                 response_data = {"status": "fail", "error": "Incorrect Email or Password"}
 
@@ -120,6 +125,39 @@ class DatabaseServer:
             self._send_response(client_socket, "GET_STATS_RESPONSE", response_data, cipher)
     
 
+    def _process_logout_user(self, client_socket: socket.socket, params, cipher):
+        """
+        פונקציה המקבלת בקשה לניתוק המשתמש. מעדכנת את מצבו בבסיס הנתונים.
+        מקבלת מספר זיהוי של משתמש ומפעילה את פעולת הניתוק בבסיס הנתונים.
+        מחזירה: שולחת לסוקט תגובה האם הצליח או לא
+        """
+        user_id = params.get("user_id")
+        if self._db.update_user_state(user_id, 0):
+            response_data = {"status": "ok"}
+        else:
+            response_data = {"status": "fail", "error": "Failed in database to logout user"}
+        self._send_response(client_socket, "LOGOUT_USER_RESPONSE", response_data, cipher)
+
+    def _process_email_exist(self, client_socket: socket.socket, params, cipher):
+        """
+        """
+        email = params.get("email")
+        if self._db.check_email_exists(email):
+            response_data = {"status": "ok"}
+        else:
+            response_data = {"status": "fail", "error": "Email Does Not Exist"}
+        self._send_response(client_socket, "EMAIL_EXISTS_RESPONSE", response_data, cipher)
+
+    def _process_update_password(self, client_socket: socket.socket, params, cipher):
+        """
+        """
+        email = params.get("email")
+        new_password = params.get("new_password")
+        if self._db.update_password(email, new_password):
+            response_data = {"status": "ok"}
+        else:
+            response_data = {"status": "fail", "error": "Failed in updating password"}
+        self._send_response(client_socket, "UPDATE_PASSWORD_RESPONSE", response_data, cipher)
 
     def handle_client(self, client_socket: socket.socket, client_address) -> None:
         """
@@ -163,6 +201,15 @@ class DatabaseServer:
                 
                 elif command == "GET_STATS_REQUEST":
                     self._process_get_stats(client_socket, params, cipher)
+
+                elif command == "LOGOUT_USER":
+                    self._process_logout_user(client_socket, params, cipher)
+                
+                elif command == "EMAIL_EXISTS":
+                    self._process_email_exist(client_socket, params, cipher)
+                
+                elif command == "UPDATE_PASSWORD":
+                    self._process_update_password(client_socket, params, cipher)
 
         except Exception as e:
             logger.exception("|db_server.py| Error handling client")

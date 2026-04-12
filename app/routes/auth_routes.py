@@ -1,5 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, session, url_for 
-from globals import db_req
+import random, datetime
+
+from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
+from globals import db_req, email_sender_tool
 from config import UserConfig
 from utils.logger import logger
 from utils.crypto_utils import hash_password
@@ -49,7 +51,11 @@ def logout():
    מחזירה: אובייקט הפניה של פלסק
     """
     try:
-        session.clear() # מנקה את כל המידע מהסשן
+        response =  db_req.send_request("LOGOUT_USER", {"user_id": session['user_id']})
+        if response and response.get("status") == "ok":
+            session.clear() # מנקה את כל המידע מהסשן
+        else:
+            logger.info("|auth_routes.py| couldn't log out")
         return redirect(url_for('main.home'))
     except Exception as e:
         logger.exception("|auth_routes.py| Error in logout")
@@ -107,3 +113,92 @@ def register_page() -> str:
         return render_template("register_page.html")
     except Exception as e:
         logger.exception(f"|auth_routes.py| Error in register")
+
+@auth_bp.route("/forgot_password", methods=['GET', 'POST'])
+def forgot_password() -> str:
+    """
+    נתיב לעמוד שכחתי סיסמה
+    מבצע את פעולת שליחת סיסמת אימות 
+    """
+    if request.method == 'GET':
+        return render_template('forgot_password.html')
+    
+    data = request.get_json()
+    action = data.get('action')
+
+    
+    if action == 'send_code':
+        logger.info("hey")
+        email = data.get('email')
+        response = db_req.send_request("EMAIL_EXISTS",{"email": email})
+        if response.get("status") == "ok":
+            # הגרלת קוד בן 6 ספרות
+            verification_code = str(random.randint(100000, 999999))
+            
+            # שמירת הקוד והאימייל בסשן כדי שנזכור אותם לשלב הבא
+            session['reset_code'] = verification_code
+            session['reset_email'] = email
+
+            email_msg = render_template('email_msg.html', code=verification_code)
+
+            email_sender_tool.send_email(email, "AviationWiki Reset Code",email_msg,True)
+            logger.info(f"Sending code {verification_code} to {email}") # רק לבדיקות
+            session['reset_timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()
+            return jsonify({"status": "ok", "message": "Code sent"})
+        else:
+            logger.error("|auth_routes.py| response from db server wasn't ok during reset-email")
+            error_msg = response.get("error") if response else "Internal Communication Error, Try Again"
+            return jsonify({"status": "fail", "message": error_msg}), 400
+        
+    elif action == 'verify_code':
+        user_code = data.get('code')
+        correct_code = session.get('reset_code')
+        timestamp = session.get('reset_timestamp')
+
+        if not timestamp:
+            return jsonify({"status": "error", "message": "Session invalid"}), 400
+        
+        now = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        diff_minutes = (now - timestamp) / 60
+
+        if diff_minutes > 10:
+            # הקוד פג תוקף - מנקים את הסשן
+            session.pop('reset_code', None)
+            session.pop('reset_email', None)
+            session.pop('reset_timestamp', None)
+            return jsonify({"status": "expired", "message": "Expired Code"}), 400
+        
+        if user_code == correct_code:
+            return jsonify({"status": "ok", "message": "Code verified"})
+        else:
+            return jsonify({"status": "error", "message": "Invalid code"}), 400
+        
+    
+    elif action == 'update_password':
+        new_password = data.get('new_password')
+        new_password2 = data.get('new_password2')
+        email_to_update = session.get('reset_email') # זוכרים לאיזה אימייל לשנות
+        
+        if not email_to_update:
+            return jsonify({"status": "error", "message": "Session expired"}), 400
+        if new_password != new_password2:
+            return jsonify({"status": "error", "message": "Passwords Not Matching"}), 400
+        if len(new_password) < UserConfig.MIN_PASSWORD_LENGTH:
+            return jsonify({"status": "error", "message": f"Password Must Be At Least {UserConfig.MIN_PASSWORD_LENGTH} Characters"}), 400
+
+        hashed_pw = hash_password(new_password)
+        response = db_req.send_request("UPDATE_PASSWORD",{"email": email_to_update, "new_password":hashed_pw})
+
+
+        # מחיקת הנתונים הרגישים מהסשן בסיום
+        session.pop('reset_code', None)
+        session.pop('reset_email', None)
+        if response.get("status") == "ok":
+            return jsonify({"status": "ok", "message": "Password updated successfully"})
+        else:
+            logger.error("|auth_routes.py| response from db server wasn't ok during update_password")
+            error_msg = response.get("error") if response else "Internal Communication Error, Try Again"
+            return jsonify({"status": "fail", "message": error_msg}), 400
+    
+    return jsonify({"status": "error", "message": "Unknown action"}), 400
+    

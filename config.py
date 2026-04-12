@@ -42,3 +42,8 @@ class UserConfig:
 class APIConfig:
     """הגדרות שימוש בAPI"""
     API_KEY = os.getenv("GEMINI_API_KEY")
+
+class EmailConfig:
+    """הגדרות למפעולות שליחת מייל"""
+    SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+    APP_PASSWORD = os.getenv("APP_PASSWORD")

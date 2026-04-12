@@ -97,18 +97,28 @@
             <h2 class="stats-title">{{ session['username'] }}'s Stats</h2>
 
             <div class="stat-item">
-                <span class="stat-label">Wins:</span>
-                <span class="stat-value">{{ stats.wins }}</span>
-            </div>
-
-            <div class="stat-item">
                 <span class="stat-label">Games Played:</span>
                 <span class="stat-value">{{ stats.games_played }}</span>
             </div>
 
             <div class="stat-item">
+                <span class="stat-label">Wins:</span>
+                <span class="stat-value">{{ stats.wins }}</span>
+            </div>
+
+            <div class="stat-item">
+                <span class="stat-label">Win Percentage:</span>
+                <span class="stat-value">{{ stats.win_percentage }}%</span>
+            </div>
+
+            <div class="stat-item">
                 <span class="stat-label">Total Correct Answers:</span>
                 <span class="stat-value">{{ stats.total_correct_answers }}</span>
+            </div>
+
+            <div class="stat-item">
+                <span class="stat-label">Correct Answers Per Game:</span>
+                <span class="stat-value">{{ stats.correct_per_game }}</span>
             </div>
         </div>
 

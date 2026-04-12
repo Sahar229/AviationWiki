@@ -21,9 +21,12 @@ class DatabaseManager:
                     username TEXT UNIQUE NOT NULL,
                     email TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
+                    is_online BOOLEAN DEFAULT 0,
                     games_played INTEGER DEFAULT 0,
                     wins INTEGER DEFAULT 0,
-                    total_correct_answers INTEGER DEFAULT 0
+                    total_correct_answers INTEGER DEFAULT 0,
+                    win_percentage INTEGER DEFAULT 0,
+                    correct_per_game INTEGER DEFAULT 0
                 )
             ''')
             conn.commit()
@@ -43,7 +46,7 @@ class DatabaseManager:
             conn = sqlite3.connect(self._db_name)
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT id, username FROM users WHERE email=? AND password=?", 
+                cursor.execute("SELECT id, username, is_online FROM users WHERE email=? AND password=?", 
                                (email, password))
                 user = cursor.fetchone()
             except Exception as e:
@@ -51,6 +54,25 @@ class DatabaseManager:
             finally:
                 conn.close()
         return user
+    
+    def update_user_state(self, user_id: int, change_to: int):
+        """
+        פוקנציה לעדכון מצבו של המשתמש האם הוא מחובר או לא
+        מחפשת במסד נתונים משתמש לפי מספר זיהוי ומעדכנת לפי הבקשה את מצבו
+        """
+        with self._lock:
+            conn = sqlite3.connect(self._db_name)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("UPDATE users SET is_online=? WHERE id=?", 
+                               (change_to, user_id))
+                conn.commit()
+                return True
+            except Exception as e:
+                logger.exception("|db_manager.py| Error in updating user state")
+                return False
+            finally:
+                conn.close()
 
     def register(self, username: str, email: str, password: str):
         """
@@ -107,9 +129,11 @@ class DatabaseManager:
                     UPDATE users 
                     SET wins = wins + ?, 
                         games_played = games_played + 1, 
-                        total_correct_answers = total_correct_answers + ?
+                        total_correct_answers = total_correct_answers + ?,
+                        win_percentage = ((wins + ?) * 100.0) / (games_played + 1),
+                        correct_per_game = CAST(total_correct_answers + ? AS FLOAT) / (games_played + 1)
                     WHERE username = ?
-                ''', (win_increment, correct_count, username))
+                ''', (win_increment, correct_count, win_increment, correct_count, username))
                 conn.commit()
                 return {"status": "ok"}
             except Exception as e:
@@ -129,7 +153,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             try:
                 cursor.execute("""
-                    SELECT wins, games_played, total_correct_answers 
+                    SELECT wins, games_played, total_correct_answers, win_percentage,correct_per_game
                     FROM users 
                     WHERE id=?
                 """, (user_id,))
@@ -140,11 +164,47 @@ class DatabaseManager:
                     stats = {
                         "wins": row[0],
                         "games_played": row[1],
-                        "total_correct_answers": row[2]
+                        "total_correct_answers": row[2],
+                        "win_percentage": row[3],
+                        "correct_per_game": row[4]
                     }
             except Exception as e:
                 logger.exception(f"|db_manager.py| Error fetching stats for user {user_id}")
             finally:
                 conn.close()
         return stats
+    
+    def check_email_exists(self, email: str):
+        """
+        """
+        user_exists = None
+        with self._lock:
+            conn = sqlite3.connect(self._db_name)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("SELECT 1 FROM users WHERE email=?", 
+                               [email])
+                user_exists = cursor.fetchone()
+            except Exception as e:
+                logger.exception("|db_manager.py| Error in email check")
+            finally:
+                conn.close()
+        return bool(user_exists)
+    
+    def update_password(self, email, new_password):
+        """
+        """
+        with self._lock:
+            conn = sqlite3.connect(self._db_name)
+            cursor = conn.cursor()
+            try:
+                cursor.execute("UPDATE users SET password=? WHERE email=?", 
+                               (new_password, email))
+                conn.commit()
+            except Exception as e:
+                logger.exception("|db_manager.py| Error in updating password")
+                return False
+            finally:
+                conn.close()
+        return True
     
