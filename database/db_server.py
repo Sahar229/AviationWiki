@@ -140,6 +140,8 @@ class DatabaseServer:
 
     def _process_email_exist(self, client_socket: socket.socket, params, cipher):
         """
+        מנהל בקשה לבדיקה האם אימייל קיים
+        מקבל אימייל ואת סוקט הלקוח ובודק האם האימייל קיים
         """
         email = params.get("email")
         if self._db.check_email_exists(email):
@@ -150,6 +152,8 @@ class DatabaseServer:
 
     def _process_update_password(self, client_socket: socket.socket, params, cipher):
         """
+        דואג לפעולת עדכון הסיסמה,
+        קורא למסד הנתונים לעדכון הסיסמה כחלק מתהליך שכחתי סיסמה
         """
         email = params.get("email")
         new_password = params.get("new_password")

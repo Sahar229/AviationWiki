@@ -31,7 +31,7 @@ def login_page() -> str:
 
                 session['user_id'] = response.get("user_id")
                 session['username'] = response.get("username")
-                logger.info(f"|auth_routes.py| login of {response.get("username")} was completed")
+                logger.info(f"|auth_routes.py| login of {response.get('username')} was completed")
                 
                 return render_template("login_page.html", success=f"Login Completed Successfully! Welcome {response.get('username')}", redirect_url=url_for('main.home'))
             else:

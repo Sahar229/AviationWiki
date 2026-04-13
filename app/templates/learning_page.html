@@ -23,8 +23,12 @@
                 <input type="text" id="search-input" placeholder="Search plane..." autocomplete="off">
                 <div id="search-results" class="search-dropdown"></div>
             </div>
-            <span class="username">Hello, {{ session['username'] }}</span>
-            <a href="{{ url_for('auth.logout') }}" class="nav-btn logout-btn">Logout</a>
+            {% if 'username' in session %}
+                <span class="username">Hello, {{ session['username'] }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="nav-btn logout-btn">Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth.login_page') }}" class="login-btn">Login / Register</a>
+            {% endif %}
         </div>
     </nav>
 

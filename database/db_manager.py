@@ -24,9 +24,7 @@ class DatabaseManager:
                     is_online BOOLEAN DEFAULT 0,
                     games_played INTEGER DEFAULT 0,
                     wins INTEGER DEFAULT 0,
-                    total_correct_answers INTEGER DEFAULT 0,
-                    win_percentage INTEGER DEFAULT 0,
-                    correct_per_game INTEGER DEFAULT 0
+                    total_correct_answers INTEGER DEFAULT 0
                 )
             ''')
             conn.commit()
@@ -130,8 +128,6 @@ class DatabaseManager:
                     SET wins = wins + ?, 
                         games_played = games_played + 1, 
                         total_correct_answers = total_correct_answers + ?,
-                        win_percentage = ((wins + ?) * 100.0) / (games_played + 1),
-                        correct_per_game = CAST(total_correct_answers + ? AS FLOAT) / (games_played + 1)
                     WHERE username = ?
                 ''', (win_increment, correct_count, win_increment, correct_count, username))
                 conn.commit()
@@ -153,7 +149,7 @@ class DatabaseManager:
             cursor = conn.cursor()
             try:
                 cursor.execute("""
-                    SELECT wins, games_played, total_correct_answers, win_percentage,correct_per_game
+                    SELECT wins, games_played, total_correct_answers
                     FROM users 
                     WHERE id=?
                 """, (user_id,))
@@ -165,8 +161,8 @@ class DatabaseManager:
                         "wins": row[0],
                         "games_played": row[1],
                         "total_correct_answers": row[2],
-                        "win_percentage": row[3],
-                        "correct_per_game": row[4]
+                        "win_percentage": (row[0] / row[1]) * 100 if row[1] > 0 else 0,
+                        "correct_per_game": (row[2]/row[1]) if row[1] > 0 else 0
                     }
             except Exception as e:
                 logger.exception(f"|db_manager.py| Error fetching stats for user {user_id}")
@@ -176,6 +172,8 @@ class DatabaseManager:
     
     def check_email_exists(self, email: str):
         """
+        פונקציה המקבלת אימייל ובודקת האם הוא נמצא בתוך מסד הנתונים
+        מחזירה אמת אם קיים אימייל ושקר אם לא
         """
         user_exists = None
         with self._lock:
@@ -193,6 +191,8 @@ class DatabaseManager:
     
     def update_password(self, email, new_password):
         """
+        פונקציה המקבלת אימייל וסיסמא חדשה ומחליפה את הסיסמה לפי האימייל
+        מחזירה אמת או שקר אם הפעולה בוצעה בהצלחה
         """
         with self._lock:
             conn = sqlite3.connect(self._db_name)
