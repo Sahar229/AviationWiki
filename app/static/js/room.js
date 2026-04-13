@@ -126,20 +126,16 @@ socket.on('start_round', (data) => {
     data.question.options.forEach(opt => {
         const btn = document.createElement('button');
         btn.innerText = opt.text;
-        btn.style.padding = '20px';
-        btn.style.fontSize = '1.2em';
-        btn.style.backgroundColor = '#89c4f4';
-        btn.style.color = '#004aad';
-        btn.style.border = '2px solid #004aad';
-        btn.style.borderRadius = '10px';
-        btn.style.cursor = 'pointer';
-        btn.style.fontWeight = 'bold';
+        
+        // הוספת מחלקת ה-CSS החדשה במקום לעצב פה!
+        btn.className = 'option-btn'; 
         
         btn.onclick = () => {
             // הגשת תשובה
             Array.from(optionsContainer.children).forEach(b => b.disabled = true);
-            btn.style.backgroundColor = '#004aad';
-            btn.style.color = '#fff';
+            
+            // הוספת קלאס המצביע על בחירה במקום לשנות צבעים ישירות
+            btn.classList.add('selected'); 
             
             socket.emit('submit_answer', {
                 room_code: ROOM_CODE,
@@ -245,12 +241,21 @@ function renderScoreboard() {
         container.innerHTML = '';
         sorted.forEach(([name, score], index) => {
             const li = document.createElement('li');
-            li.style.padding = '10px';
-            li.style.marginBottom = '5px';
-            li.style.background = name === MY_USERNAME ? '#e0f7fa' : '#f4f4f4';
-            li.style.border = name === MY_USERNAME ? '2px solid #00acc1' : 'none';
-            li.style.borderRadius = '5px';
-            li.innerText = `${index + 1}. ${name} - ${score} pts`;
+            // אם זה המשתמש שלנו, נוסיף לו את המחלקה 'me' שתצבע אותו בתכלת
+            if (name === MY_USERNAME) {
+                li.className = 'me';
+            }
+            
+            // הפרדה בין שם לשחקן כדי שזה יראה טוב בטבלה
+            const nameSpan = document.createElement('span');
+            nameSpan.innerText = `${index + 1}. ${name}`;
+            
+            const scoreSpan = document.createElement('span');
+            scoreSpan.innerText = `${score} pts`;
+            
+            li.appendChild(nameSpan);
+            li.appendChild(scoreSpan);
+            
             container.appendChild(li);
         });
     });
