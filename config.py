@@ -38,6 +38,8 @@ class GameRules:
 class UserConfig:
     """הגדרות משתמשים והרשמה"""
     MIN_PASSWORD_LENGTH = 6
+    MAX_ATTEMPTS = 5
+    LOCKOUT_DURATION = 300
 
 class APIConfig:
     """הגדרות שימוש בAPI"""

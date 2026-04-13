@@ -26,7 +26,6 @@ class DatabaseServer:
         """
         מבצעת את השליחה עצמה של ההודעות לפי הפרוטוקול
         """
-        logger.info("|db_server.py| sending encrypted response")
         ProtocolTools.send_encrypted_message(client_socket, cmd, cipher, response_data)
 
     def _process_login(self, client_socket: socket.socket, params, cipher) -> None:
@@ -43,12 +42,7 @@ class DatabaseServer:
             user = self._db.login(email,password)
             
             if user:
-                id, is_online = user[0], user[2]
-                if is_online == 0:
-                    response_data = {"status": "ok", "user_id": id, "username": user[1]}   
-                    self._db.update_user_state(id, 1)
-                else:
-                    response_data = {"status": "fail", "error": "User is Already Connected"}  
+                response_data = {"status": "ok", "user_id": user[0], "username": user[1]} 
             else:
                 response_data = {"status": "fail", "error": "Incorrect Email or Password"}
 
@@ -187,7 +181,6 @@ class DatabaseServer:
 
                 #קבלת הודעה לאחר לחיצת יד
                 command, params = ProtocolTools.receive_encrypted_message(client_socket, cipher)
-                logger.info("|db_server.py| receiving encrypted message")
 
                 logger.info(f"|db_server.py| Received command: {command} from {client_address}")
 

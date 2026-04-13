@@ -104,7 +104,7 @@ class Room:
         מאפסת את רשימת התשובות של המשתמש ורושמת את הזמן שהביאו לה כקלט
         """
         self._round_answers = {}
-        self._round_start_time = time.time
+        self._round_start_time = time.time()
 
     def register_answer(self, player_name : str, answer_idx : int):
         """

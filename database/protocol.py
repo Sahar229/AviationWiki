@@ -59,7 +59,6 @@ class ProtocolTools:
             "command": command,
             "params": params
         }
-        
         #הכנת גייסון
         message_str = json.dumps(message_dict)
         message_bytes = message_str.encode('utf-8')

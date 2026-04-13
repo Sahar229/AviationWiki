@@ -43,7 +43,9 @@
                 const data = await response.json();
                 
 
-                document.getElementById(loadingId).innerHTML = marked.parse(data.answer) || "Error getting response.";
+                const rawHtml = marked.parse(data.answer);
+                const cleanHtml = DOMPurify.sanitize(rawHtml);
+                document.getElementById(loadingId).innerHTML = cleanHtml || "Error getting response.";
             } catch (e) {
                 console.error(e);
                 document.getElementById(loadingId).innerText = "Communication error with the server.";

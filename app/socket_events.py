@@ -28,6 +28,16 @@ def handle_create_room(data):
     user = session.get('username')
     logger.info(f"|socket_events.py| Payload for creating a room received: {data}")
 
+    user_active_rooms = sum(1 for r in game_manager._active_rooms.values() if r.host == user)
+    if user_active_rooms >= 3: # הגבלה ל-3 חדרים פעילים לארח
+        emit('error', {'message': 'You have reached the maximum number of active rooms.'})
+        return
+        
+    # הגבלה גלובלית על כמות החדרים בשרת כדי למנוע קריסת זיכרון
+    if len(game_manager._active_rooms) >= 100: 
+        emit('error', {'message': 'Server is currently at maximum capacity. Please try again later.'})
+        return
+    
     try:
 
         #קליטת נתונים

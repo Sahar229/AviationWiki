@@ -1,7 +1,8 @@
 import json
 
 from flask import Blueprint, render_template, session, redirect, url_for, request, jsonify
-from globals import db_req, game_manager
+
+from globals import db_req, game_manager, csrf
 from utils.logger import logger
 from google import genai
 from google.genai import types
@@ -9,6 +10,8 @@ from config import APIConfig
 main_bp = Blueprint('main', __name__)
 
 ai_tutor_model = genai.Client(api_key=APIConfig.API_KEY)
+user_ai_requests = {}
+
 
 @main_bp.route("/")
 def home() -> str:
@@ -109,13 +112,19 @@ def learn_from_mistakes() -> str:
 
 
 @main_bp.route("/api/ask_ai", methods=['POST'])
+@csrf.exempt
 def ask_ai():
     """
     פונקציית שימוש בAPI בלימוד עצמי
     """
-    ai_requests_count = session.get('ai_requests_count', 0)
+    user_id = session.get('user_id')
 
-    if ai_requests_count >= 3:
+    if not user_id:
+        return jsonify({"answer": "You must be logged in."}), 401
+    
+    requests_made = user_ai_requests.get(user_id, 0)
+
+    if requests_made >= 3:
         return jsonify({"answer": "You have reached your limit of 3 AI requests for this session. Keep flying!"}), 403
     
 
@@ -123,24 +132,24 @@ def ask_ai():
     user_prompt = data.get('prompt', '')
     if not user_prompt:
         return jsonify({"answer": "No prompt provided."}), 400
+    if len(user_prompt) > 1000:
+        return jsonify({"answer": "Prompt is too long. Please keep it under 1000 characters."}), 400
         
     try:
-        # 3. שליחת השאלה של המשתמש למודל
+        # שליחת השאלה של המשתמש למודל
         response = ai_tutor_model.models.generate_content(
-            model="gemini-2.5-flash", # השם הזה עובד חלק בספרייה החדשה
+            model="gemini-2.5-flash-lite",
             contents=user_prompt,
-            # 3. כאן אנחנו מכניסים את האישיות של המורה דרך אובייקט הקינפוג
             config=types.GenerateContentConfig(
                 system_instruction="You are a friendly, encouraging, and expert aviation tutor. You explain concepts simply, focus on aviation physics, aircraft systems, and flying rules. Keep your answers concise and clear."
             )
         )
-        session['ai_requests_count'] = ai_requests_count + 1
-        # 4. חילוץ הטקסט נטו מתוך התשובה
+        user_ai_requests[user_id] = requests_made + 1
+
         ai_answer = response.text
         
         return jsonify({"answer": ai_answer})
         
     except Exception as e:
-        # במקרה של שגיאה (למשל בעיית אינטרנט או מפתח לא נכון)
         logger.exception(f"Error getting response from api")
         return jsonify({"answer": "My AI brain had a slight malfunction. Please try again."}), 500

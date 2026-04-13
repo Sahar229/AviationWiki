@@ -132,5 +132,6 @@ def end_game(room_code):
             'winners': winner_names,
             'errors': room.errors
         }, to=room_code)
+        del game_manager._active_rooms[room_code]
     except Exception as e:
         logger.exception("|game_flow.py| Error in ending the game")

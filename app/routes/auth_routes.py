@@ -1,13 +1,15 @@
-import random, datetime
+import random, datetime, time
+import uuid
 
 from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
-from globals import db_req, email_sender_tool
+from globals import db_req, email_sender_tool, active_sessions
 from config import UserConfig
 from utils.logger import logger
 from utils.crypto_utils import hash_password
 
 auth_bp = Blueprint('auth', __name__)
 
+login_attempts = {}
 
 
 @auth_bp.route("/login", methods=['GET', 'POST'])
@@ -21,22 +23,49 @@ def login_page() -> str:
         if request.method == 'POST':
             email = request.form['email']
             password = request.form['password']
-            hashed_pw = hash_password(password)
 
+
+            user_attempt_data = login_attempts.get(email, {"attempts": 0, "lockout_time": 0})
+            if time.time() < user_attempt_data["lockout_time"]:
+                remaining_time = int(user_attempt_data["lockout_time"] - time.time())
+                # המשתמש נעול
+
+                return render_template("login_page.html", error=f"Account locked. Try again in {remaining_time} seconds."), 403
+            
+
+            hashed_pw = hash_password(password)
             response = db_req.send_request("LOGIN_REQUEST", {
                 "email": email, 
                 "password": hashed_pw
             })
             if response and response.get("status") == "ok":
 
+                username = response.get("username")
                 session['user_id'] = response.get("user_id")
-                session['username'] = response.get("username")
+                session['username'] = username
                 logger.info(f"|auth_routes.py| login of {response.get('username')} was completed")
+                login_token = str(uuid.uuid4())
+                session['login_token'] = login_token 
                 
+                # מעדכנים בשרת שהטוקן החוקי היחיד למשתמש הזה הוא הטוקן החדש
+                active_sessions[username] = login_token
                 return render_template("login_page.html", success=f"Login Completed Successfully! Welcome {response.get('username')}", redirect_url=url_for('main.home'))
             else:
-                logger.error("|auth_routes.py| response from db server wasn't ok during login")
-                error_msg = response.get("error") if response else "Internal Communication Error, Try Again"
+                user_attempt_data["attempts"] += 1
+                if user_attempt_data["attempts"] >= UserConfig.MAX_ATTEMPTS:
+                    logger.warning(f"|auth_routes.py| {email} was locked out because he tried loggin in too much")
+                    user_attempt_data["lockout_time"] = time.time() + UserConfig.LOCKOUT_DURATION
+                    
+                login_attempts[email] = user_attempt_data
+
+                logger.warning(f"|auth_routes.py| {email} didn't succeseed in loggin in")
+                if response and user_attempt_data["attempts"] < UserConfig.MAX_ATTEMPTS:
+                    error_msg = response.get("error") + "\n You have " + str(UserConfig.MAX_ATTEMPTS - user_attempt_data["attempts"]) + " attempted remaining"
+                elif response:
+                    remaining_time = int(user_attempt_data["lockout_time"] - time.time())
+                    error_msg = f"Account locked. Try again in {remaining_time} seconds."
+                else:
+                    error_msg = "Internal Communication Error, Try Again"
                 return render_template("login_page.html", error=error_msg)
         return render_template("login_page.html")
     except Exception as e:
@@ -50,15 +79,8 @@ def logout():
    .מנקה את נתוני הסשן ומעביר את המשתמש חזרה לעמוד הבית
    מחזירה: אובייקט הפניה של פלסק
     """
-    try:
-        response =  db_req.send_request("LOGOUT_USER", {"user_id": session['user_id']})
-        if response and response.get("status") == "ok":
-            session.clear() # מנקה את כל המידע מהסשן
-        else:
-            logger.info("|auth_routes.py| couldn't log out")
-        return redirect(url_for('main.home'))
-    except Exception as e:
-        logger.exception("|auth_routes.py| Error in logout")
+    session.clear() # מנקה את כל המידע מהסשן
+    return redirect(url_for('main.home'))
 
         
 
@@ -146,7 +168,7 @@ def forgot_password() -> str:
             session['reset_timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()
             return jsonify({"status": "ok", "message": "Code sent"})
         else:
-            logger.error("|auth_routes.py| response from db server wasn't ok during reset-email")
+            logger.error("|auth_routes.py| response from db server failed during reset-email")
             error_msg = response.get("error") if response else "Internal Communication Error, Try Again"
             return jsonify({"status": "fail", "message": error_msg}), 400
         
@@ -196,7 +218,7 @@ def forgot_password() -> str:
         if response.get("status") == "ok":
             return jsonify({"status": "ok", "message": "Password updated successfully"})
         else:
-            logger.error("|auth_routes.py| response from db server wasn't ok during update_password")
+            logger.error("|auth_routes.py| response from db server failed during update_password")
             error_msg = response.get("error") if response else "Internal Communication Error, Try Again"
             return jsonify({"status": "fail", "message": error_msg}), 400
     

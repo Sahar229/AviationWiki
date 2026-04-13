@@ -21,7 +21,6 @@ class DatabaseManager:
                     username TEXT UNIQUE NOT NULL,
                     email TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
-                    is_online BOOLEAN DEFAULT 0,
                     games_played INTEGER DEFAULT 0,
                     wins INTEGER DEFAULT 0,
                     total_correct_answers INTEGER DEFAULT 0
@@ -44,7 +43,7 @@ class DatabaseManager:
             conn = sqlite3.connect(self._db_name)
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT id, username, is_online FROM users WHERE email=? AND password=?", 
+                cursor.execute("SELECT id, username FROM users WHERE email=? AND password=?", 
                                (email, password))
                 user = cursor.fetchone()
             except Exception as e:
@@ -52,25 +51,6 @@ class DatabaseManager:
             finally:
                 conn.close()
         return user
-    
-    def update_user_state(self, user_id: int, change_to: int):
-        """
-        פוקנציה לעדכון מצבו של המשתמש האם הוא מחובר או לא
-        מחפשת במסד נתונים משתמש לפי מספר זיהוי ומעדכנת לפי הבקשה את מצבו
-        """
-        with self._lock:
-            conn = sqlite3.connect(self._db_name)
-            cursor = conn.cursor()
-            try:
-                cursor.execute("UPDATE users SET is_online=? WHERE id=?", 
-                               (change_to, user_id))
-                conn.commit()
-                return True
-            except Exception as e:
-                logger.exception("|db_manager.py| Error in updating user state")
-                return False
-            finally:
-                conn.close()
 
     def register(self, username: str, email: str, password: str):
         """
@@ -127,9 +107,9 @@ class DatabaseManager:
                     UPDATE users 
                     SET wins = wins + ?, 
                         games_played = games_played + 1, 
-                        total_correct_answers = total_correct_answers + ?,
+                        total_correct_answers = total_correct_answers + ?
                     WHERE username = ?
-                ''', (win_increment, correct_count, win_increment, correct_count, username))
+                ''', (win_increment, correct_count, username))
                 conn.commit()
                 return {"status": "ok"}
             except Exception as e:

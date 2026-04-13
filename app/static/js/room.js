@@ -187,7 +187,13 @@ socket.on('round_results', (data) => {
 socket.on('game_over', (data) => {
     if (currentTimer) clearInterval(currentTimer);
     showView(finalView);
-    
+
+    confetti({
+        particleCount: 150,
+        spread: 70,       
+        origin: { y: 0.6 },
+        colors: ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff']
+    });
     const winnerDisplay = document.getElementById('winner-display');
     if (data.winners && data.winners.length > 1) {
         winnerDisplay.innerHTML = `Winners: <span id="winner-name" style="color: #28a745; font-size: 1.5em; text-decoration: underline;">${data.winners.join(', ')}</span>`;
@@ -249,6 +255,10 @@ function renderScoreboard() {
             // הפרדה בין שם לשחקן כדי שזה יראה טוב בטבלה
             const nameSpan = document.createElement('span');
             nameSpan.innerText = `${index + 1}. ${name}`;
+
+            if (name === MY_USERNAME) {
+                nameSpan.innerText += ' 👈'; 
+            }
             
             const scoreSpan = document.createElement('span');
             scoreSpan.innerText = `${score} pts`;

@@ -6,6 +6,7 @@
     <title>Room {{ room_code }} - Aviation Quiz</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz_room.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
@@ -70,6 +71,7 @@
         <div>
             <button class="action-btn start-btn" onclick="window.location.href='/quiz_lobby'" style="background: #6c757d;">🏠 Return to Lobby</button>
             <form id="mistakes-form" action="/learn_from_mistakes" method="POST" style="display: inline-block;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="mistakes" id="mistakes-input">
                 <button type="submit" class="action-btn learn-btn" id="learn-btn" style="display: none;">🔎 Learn From Your Mistakes</button>
             </form>
