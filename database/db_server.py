@@ -117,20 +117,6 @@ class DatabaseServer:
             response_data = {"status": "fail", "error": "Internal server error"}
         finally:
             self._send_response(client_socket, "GET_STATS_RESPONSE", response_data, cipher)
-    
-
-    def _process_logout_user(self, client_socket: socket.socket, params, cipher):
-        """
-        פונקציה המקבלת בקשה לניתוק המשתמש. מעדכנת את מצבו בבסיס הנתונים.
-        מקבלת מספר זיהוי של משתמש ומפעילה את פעולת הניתוק בבסיס הנתונים.
-        מחזירה: שולחת לסוקט תגובה האם הצליח או לא
-        """
-        user_id = params.get("user_id")
-        if self._db.update_user_state(user_id, 0):
-            response_data = {"status": "ok"}
-        else:
-            response_data = {"status": "fail", "error": "Failed in database to logout user"}
-        self._send_response(client_socket, "LOGOUT_USER_RESPONSE", response_data, cipher)
 
     def _process_email_exist(self, client_socket: socket.socket, params, cipher):
         """
