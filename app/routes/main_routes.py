@@ -7,6 +7,8 @@ from utils.logger import logger
 from google import genai
 from google.genai import types
 from config import APIConfig
+
+
 main_bp = Blueprint('main', __name__)
 
 ai_tutor_model = genai.Client(api_key=APIConfig.API_KEY)
@@ -153,3 +155,4 @@ def ask_ai():
     except Exception as e:
         logger.exception(f"Error getting response from api")
         return jsonify({"answer": "My AI brain had a slight malfunction. Please try again."}), 500
+    

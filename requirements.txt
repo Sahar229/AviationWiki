@@ -1,0 +1,9 @@
+cryptography
+Flask
+flask_socketio
+flask_wtf
+protobuf
+py_diffie_hellma
+pycryptodome
+python-dotenv
+google-genai

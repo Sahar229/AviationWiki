@@ -119,19 +119,6 @@ class DatabaseServer:
             self._send_response(client_socket, "GET_STATS_RESPONSE", response_data, cipher)
     
 
-    def _process_logout_user(self, client_socket: socket.socket, params, cipher):
-        """
-        פונקציה המקבלת בקשה לניתוק המשתמש. מעדכנת את מצבו בבסיס הנתונים.
-        מקבלת מספר זיהוי של משתמש ומפעילה את פעולת הניתוק בבסיס הנתונים.
-        מחזירה: שולחת לסוקט תגובה האם הצליח או לא
-        """
-        user_id = params.get("user_id")
-        if self._db.update_user_state(user_id, 0):
-            response_data = {"status": "ok"}
-        else:
-            response_data = {"status": "fail", "error": "Failed in database to logout user"}
-        self._send_response(client_socket, "LOGOUT_USER_RESPONSE", response_data, cipher)
-
     def _process_email_exist(self, client_socket: socket.socket, params, cipher):
         """
         מנהל בקשה לבדיקה האם אימייל קיים
@@ -173,11 +160,11 @@ class DatabaseServer:
 
                 if command == "DH_HANDSHAKE":
                     client_pub_key = params1["pub_key"]
-                dh, my_pub_key = NetworkCipher.generate_dh_keys()
-                ProtocolTools.send_message(client_socket, "DH_HANDSHAKE_RESPONSE", {"pub_key": my_pub_key})
+                    dh, my_pub_key = NetworkCipher.generate_dh_keys()
+                    ProtocolTools.send_message(client_socket, "DH_HANDSHAKE_RESPONSE", {"pub_key": my_pub_key})
 
-                shared_key = NetworkCipher.compute_shared_key(dh, client_pub_key)
-                cipher = NetworkCipher(shared_key) 
+                    shared_key = NetworkCipher.compute_shared_key(dh, client_pub_key)
+                    cipher = NetworkCipher(shared_key) 
 
                 #קבלת הודעה לאחר לחיצת יד
                 command, params = ProtocolTools.receive_encrypted_message(client_socket, cipher)
@@ -198,9 +185,6 @@ class DatabaseServer:
                 
                 elif command == "GET_STATS_REQUEST":
                     self._process_get_stats(client_socket, params, cipher)
-
-                elif command == "LOGOUT_USER":
-                    self._process_logout_user(client_socket, params, cipher)
                 
                 elif command == "EMAIL_EXISTS":
                     self._process_email_exist(client_socket, params, cipher)

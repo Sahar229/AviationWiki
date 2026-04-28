@@ -149,3 +149,4 @@ class ProtocolTools:
         except Exception as e:
             logger.exception("|protocol.py| Error receiving an encrypted message")
             return None, None
+        

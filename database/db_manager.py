@@ -141,8 +141,8 @@ class DatabaseManager:
                         "wins": row[0],
                         "games_played": row[1],
                         "total_correct_answers": row[2],
-                        "win_percentage": (row[0] / row[1]) * 100 if row[1] > 0 else 0,
-                        "correct_per_game": (row[2]/row[1]) if row[1] > 0 else 0
+                        "win_percentage": round(((row[0] / row[1]) * 100 if row[1] > 0 else 0), 2),
+                        "correct_per_game": round(((row[2]/row[1]) if row[1] > 0 else 0),2)
                     }
             except Exception as e:
                 logger.exception(f"|db_manager.py| Error fetching stats for user {user_id}")

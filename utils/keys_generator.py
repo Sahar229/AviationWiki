@@ -6,9 +6,19 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
 import datetime
 import secrets
+import os
 
 
 def generate_self_signed_cert():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, os.pardir))
+    certs_dir = os.path.join(project_root, "certs")
+
+
+    if not os.path.exists(certs_dir):
+        os.makedirs(certs_dir)
+        print(f"Created directory: {certs_dir}")
+
     # 1. יצירת מפתח פרטי (Private Key)
     key = rsa.generate_private_key(
         public_exponent=65537,
@@ -43,8 +53,11 @@ def generate_self_signed_cert():
         critical=False,
     ).sign(key, hashes.SHA256())
 
+    key_path = os.path.join(certs_dir, "key.pem")
+    cert_path = os.path.join(certs_dir, "cert.pem")
+
     # 4. שמירת קובץ המפתח (key.pem)
-    with open("key.pem", "wb") as f:
+    with open(key_path, "wb") as f:
         f.write(key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
@@ -52,7 +65,7 @@ def generate_self_signed_cert():
         ))
 
     # 5. שמירת קובץ התעודה (cert.pem)
-    with open("cert.pem", "wb") as f:
+    with open(cert_path, "wb") as f:
         f.write(cert.public_bytes(serialization.Encoding.PEM))
 
     print("Success! Created cert.pem and key.pem")
@@ -61,4 +74,7 @@ def generate_secret_key():
     print(secrets.token_hex())
 
 if __name__ == "__main__":
+    print("--- Generating Project Keys ---")
+    generate_self_signed_cert()
+    print("\nUse the following token for your SECRET_KEY in .env:")
     generate_secret_key()

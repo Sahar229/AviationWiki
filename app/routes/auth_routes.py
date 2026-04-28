@@ -1,7 +1,8 @@
 import random, datetime, time
-import uuid
 
+import uuid
 from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
+
 from globals import db_req, email_sender_tool, active_sessions
 from config import UserConfig
 from utils.logger import logger
@@ -150,7 +151,6 @@ def forgot_password() -> str:
 
     
     if action == 'send_code':
-        logger.info("hey")
         email = data.get('email')
         response = db_req.send_request("EMAIL_EXISTS",{"email": email})
         if response.get("status") == "ok":
@@ -168,7 +168,7 @@ def forgot_password() -> str:
             session['reset_timestamp'] = datetime.datetime.now(datetime.timezone.utc).timestamp()
             return jsonify({"status": "ok", "message": "Code sent"})
         else:
-            logger.error("|auth_routes.py| response from db server failed during reset-email")
+            logger.warning("|auth_routes.py| Email wasn't found / response from db server failed during reset-email")
             error_msg = response.get("error") if response else "Internal Communication Error, Try Again"
             return jsonify({"status": "fail", "message": error_msg}), 400
         
