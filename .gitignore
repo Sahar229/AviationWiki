@@ -10,6 +10,7 @@ users.db
 
 #cache
 __pycache__/
+.idea
 
 #env 
 .env
