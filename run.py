@@ -43,6 +43,7 @@ if __name__ == "__main__":
     # הפעלת שרת
     socketio.run(app, 
                  debug=True, 
+                 host=ServerConfig.HOST,
                  port=ServerConfig.PORT, 
                  certfile=ServerConfig.CERT_FILE, 
                  keyfile=ServerConfig.KEY_FILE,
