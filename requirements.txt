@@ -3,7 +3,7 @@ Flask
 flask_socketio
 flask_wtf
 protobuf
-py_diffie_hellma
+py_diffie_hellman
 pycryptodome
 python-dotenv
 google-genai
