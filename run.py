@@ -45,7 +45,8 @@ if __name__ == "__main__":
                  debug=True, 
                  host=ServerConfig.HOST,
                  port=ServerConfig.PORT, 
-                 ssl_context=(ServerConfig.CERT_FILE, ServerConfig.KEY_FILE),
+                 certfile=ServerConfig.CERT_FILE, 
+                 keyfile=ServerConfig.KEY_FILE,
                  use_reloader=False)
     
     logger.info("|run.py| starting main server")
